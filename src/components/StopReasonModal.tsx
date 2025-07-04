@@ -4,9 +4,17 @@ import { Modal } from 'obsidian';
 
 export class StopReasonModal extends Modal {
   onSelect: (reason: string, action: 'pause' | 'stop') => void;
+  reasons: string[];
+  selectedReason: string;
   constructor(app: any, onSelect: (reason: string, action: 'pause' | 'stop') => void) {
     super(app);
     this.onSelect = onSelect;
+    const plugin = (this.app as any).plugins.getPlugin('pomodoro-kanban');
+    this.reasons =
+      plugin?.settings?.['stop-reasons']?.length
+        ? plugin.settings['stop-reasons']
+        : ['Finished', 'Interrupted', 'Break', 'Other'];
+    this.selectedReason = this.reasons[0];
   }
 
   onOpen() {
@@ -14,9 +22,15 @@ export class StopReasonModal extends Modal {
     contentEl.empty();
     contentEl.createEl('h3', { text: 'Why do you stop?' });
 
-    const selectEl = contentEl.createEl('select');
-    ['Finished', 'Interrupted', 'Break', 'Other'].forEach((r) => {
-      selectEl.createEl('option', { value: r, text: r });
+    const listEl = contentEl.createDiv({ cls: 'stop-reason-list' });
+    this.reasons.forEach((r) => {
+      const btn = listEl.createEl('button', { text: r });
+      btn.style.display = 'block';
+      btn.onclick = () => {
+        this.selectedReason = r;
+        Array.from(listEl.children).forEach((child) => (child as HTMLElement).removeClass('is-active'));
+        btn.addClass('is-active');
+      };
     });
 
     const btnRow = contentEl.createDiv({ cls: 'stop-reason-buttons' });
@@ -25,11 +39,11 @@ export class StopReasonModal extends Modal {
 
     pauseBtn.onclick = () => {
       this.close();
-      this.onSelect(selectEl.value, 'pause');
+      this.onSelect(this.selectedReason, 'pause');
     };
     stopBtn.onclick = () => {
       this.close();
-      this.onSelect(selectEl.value, 'stop');
+      this.onSelect(this.selectedReason, 'stop');
     };
   }
 } 

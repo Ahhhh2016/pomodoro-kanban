@@ -6,6 +6,7 @@ import {
   PluginSettingTab,
   Setting,
   ToggleComponent,
+  TextAreaComponent,
 } from 'obsidian';
 
 import { KanbanView } from './KanbanView';
@@ -90,6 +91,7 @@ export interface KanbanSettings {
   'tag-sort'?: TagSort[];
   'time-format'?: string;
   'time-trigger'?: string;
+  'stop-reasons'?: string[];
 }
 
 export interface KanbanViewSettings {
@@ -136,6 +138,7 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'tag-action',
   'tag-colors',
   'tag-sort',
+  'stop-reasons',
   'time-format',
   'time-trigger',
 ]);
@@ -1530,6 +1533,56 @@ export class SettingsManager {
             });
         });
     });
+
+    // Stop reasons setting (global only)
+    if (!local) {
+      new Setting(contentEl)
+        .setName('Timer stop reasons')
+        .setDesc('Comma separated list of reasons that appear when stopping or pausing a timer.')
+        .then((setting) => {
+          let textComponent: TextAreaComponent;
+
+          setting
+            .addTextArea((text) => {
+              textComponent = text;
+
+              const [value, globalValue] = this.getSetting('stop-reasons', local);
+
+              const listVal = (value ?? globalValue ?? [
+                'Finished',
+                'Interrupted',
+                'Break',
+                'Other',
+              ]) as string[];
+
+              text.setPlaceholder('Finished,Interrupted,Break,Other');
+              text.setValue(listVal.join(','));
+
+              text.onChange((val) => {
+                const items = val
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter((s) => s.length);
+
+                this.applySettingsUpdate({
+                  'stop-reasons': {
+                    $set: items,
+                  },
+                });
+              });
+            })
+            .addExtraButton((b) => {
+              b.setIcon('lucide-rotate-ccw')
+                .setTooltip(t('Reset to default'))
+                .onClick(() => {
+                  textComponent.setValue('Finished,Interrupted,Break,Other');
+                  this.applySettingsUpdate({
+                    $unset: ['stop-reasons'],
+                  });
+                });
+            });
+        });
+    }
   }
 
   cleanUp() {
