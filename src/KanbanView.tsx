@@ -24,6 +24,8 @@ import { PromiseQueue } from './helpers/util';
 import { t } from './lang/helpers';
 import KanbanPlugin from './main';
 import { frontmatterKey } from './parsers/common';
+import { h, Fragment } from 'preact';
+import { TimerPanelModal } from './components/TimerPanelModal';
 
 export const kanbanViewType = 'kanban';
 export const kanbanIcon = 'lucide-trello';
@@ -496,39 +498,58 @@ export class KanbanView extends TextFileView implements HoverParent {
       mode: 'stopwatch' | 'pomodoro'
     ) => {
       if (!this.actionButtons[key]) {
-        this.actionButtons[key] = this.addAction(icon, label, () => {
-          // when clicked without card, toggle standalone
-          timerManager.toggle(mode);
+        this.actionButtons[key] = this.addAction(icon, label, (evt) => {
+          const isRunning = timerManager.state.running;
+          if (!isRunning) {
+            timerManager.toggle(mode);
+          } else {
+            new TimerPanelModal(this.app, timerManager).open();
+          }
         });
       }
 
-      // Update appearance based on running state
+      // Always show button with latest time or placeholder
       const btn = this.actionButtons[key];
-      if (timerManager.isRunning(mode)) {
-        btn.innerText = `⏱ ${formatTime(timerManager.getElapsed())}`;
-      } else {
-        btn.innerHTML = '';
-        const svg = btn.createSpan({ cls: 'kanban-plugin__icon' });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        (window as any).setIcon ? (window as any).setIcon(svg, icon) : null;
-      }
+
+      const isCurrentMode = timerManager.state.mode === mode;
+      // Build UI: icon + time + arrow
+      const isRunning = timerManager.state.running && isCurrentMode;
+
+      let displayTime = isCurrentMode
+        ? (mode === 'pomodoro'
+            ? formatTime(timerManager.getRemaining())
+            : formatTime(timerManager.getElapsed()))
+        : mode === 'pomodoro'
+          ? formatTime(timerManager.pomodoroDefault)
+          : '00:00';
+
+      // Reset content
+      btn.innerHTML = '';
+
+      // icon using unicode
+      const iconChar = isRunning ? '⏸' : '▶';
+      btn.createSpan({ text: iconChar, cls: 'kanban-plugin__unicode-icon' });
+
+      // time text
+      btn.createSpan({ text: ` ${displayTime} ` });
+
+      // arrow icon
+      const arrow = btn.createSpan({ text: '▼', cls: 'kanban-timer-arrow' });
     };
 
-    ensureTimerButton('timer-stopwatch', 'lucide-clock', 'Stopwatch', 'stopwatch');
-    ensureTimerButton('timer-pomodoro', 'lucide-timer', 'Pomodoro', 'pomodoro');
+    // single global timer button showing current mode
+    const currentMode: 'stopwatch' | 'pomodoro' = timerManager.state.mode;
+    const currentIcon = currentMode === 'pomodoro' ? 'lucide-timer' : 'lucide-clock';
+    ensureTimerButton('timer-global', currentIcon, 'Timer', currentMode);
 
-    // listen to timer events for live update
     const updateButtons = () => {
-      ensureTimerButton('timer-stopwatch', 'lucide-clock', 'Stopwatch', 'stopwatch');
-      ensureTimerButton('timer-pomodoro', 'lucide-timer', 'Pomodoro', 'pomodoro');
+      const mode = timerManager.state.mode;
+      ensureTimerButton('timer-global', mode === 'pomodoro' ? 'lucide-timer' : 'lucide-clock', 'Timer', mode);
     };
-    timerManager.emitter.off('tick', updateButtons);
-    timerManager.emitter.on('tick', updateButtons);
-    timerManager.emitter.off('start', updateButtons);
-    timerManager.emitter.off('stop', updateButtons);
-    timerManager.emitter.on('start', updateButtons);
-    timerManager.emitter.on('stop', updateButtons);
+    ['tick','start','stop','change'].forEach((ev) => {
+      timerManager.emitter.off(ev, updateButtons);
+      timerManager.emitter.on(ev, updateButtons);
+    });
   };
 
   clear() {

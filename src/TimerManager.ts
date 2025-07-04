@@ -96,4 +96,11 @@ export class TimerManager {
     if (!this.state.running) return this.state.elapsed;
     return Date.now() - this.state.start + this.state.elapsed;
   }
+
+  /** Returns remaining ms for pomodoro, or 0 if stopwatch */
+  getRemaining() {
+    if (this.state.mode !== 'pomodoro') return 0;
+    const remaining = this.pomodoroDefault - this.getElapsed();
+    return remaining > 0 ? remaining : 0;
+  }
 } 

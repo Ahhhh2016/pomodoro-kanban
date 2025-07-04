@@ -1,7 +1,7 @@
 {
   "name": "pomodoro-kanban",
-  "version": "2.0.51",
-  "description": "Pomodoro enhanced Kanban plugin for Obsidian.",
+  "version": "1.0",
+  "description": "Pomodoro enhanced Kanban plugin for Obsidian",
   "main": "main.js",
   "scripts": {
     "typecheck": "tsc --noemit",
@@ -16,7 +16,7 @@
     "release": "git commit -m $npm_package_version && git tag $npm_package_version && git push && git push --tags"
   },
   "keywords": [],
-  "author": "",
+  "author": "ahhhh2016",
   "license": "MIT",
   "devDependencies": {
     "@codemirror/commands": "^6.0.0",
