@@ -476,6 +476,59 @@ export class KanbanView extends TextFileView implements HoverParent {
       this.actionButtons['show-add-list'].remove();
       delete this.actionButtons['show-add-list'];
     }
+
+    // Stopwatch / Pomodoro buttons
+    const timerManager = this.plugin.timerManager;
+
+    const formatTime = (ms: number) => {
+      const totalSec = Math.floor(ms / 1000);
+      const m = Math.floor(totalSec / 60)
+        .toString()
+        .padStart(2, '0');
+      const s = (totalSec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
+    const ensureTimerButton = (
+      key: string,
+      icon: string,
+      label: string,
+      mode: 'stopwatch' | 'pomodoro'
+    ) => {
+      if (!this.actionButtons[key]) {
+        this.actionButtons[key] = this.addAction(icon, label, () => {
+          // when clicked without card, toggle standalone
+          timerManager.toggle(mode);
+        });
+      }
+
+      // Update appearance based on running state
+      const btn = this.actionButtons[key];
+      if (timerManager.isRunning(mode)) {
+        btn.innerText = `⏱ ${formatTime(timerManager.getElapsed())}`;
+      } else {
+        btn.innerHTML = '';
+        const svg = btn.createSpan({ cls: 'kanban-plugin__icon' });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        (window as any).setIcon ? (window as any).setIcon(svg, icon) : null;
+      }
+    };
+
+    ensureTimerButton('timer-stopwatch', 'lucide-clock', 'Stopwatch', 'stopwatch');
+    ensureTimerButton('timer-pomodoro', 'lucide-timer', 'Pomodoro', 'pomodoro');
+
+    // listen to timer events for live update
+    const updateButtons = () => {
+      ensureTimerButton('timer-stopwatch', 'lucide-clock', 'Stopwatch', 'stopwatch');
+      ensureTimerButton('timer-pomodoro', 'lucide-timer', 'Pomodoro', 'pomodoro');
+    };
+    timerManager.emitter.off('tick', updateButtons);
+    timerManager.emitter.on('tick', updateButtons);
+    timerManager.emitter.off('start', updateButtons);
+    timerManager.emitter.off('stop', updateButtons);
+    timerManager.emitter.on('start', updateButtons);
+    timerManager.emitter.on('stop', updateButtons);
   };
 
   clear() {

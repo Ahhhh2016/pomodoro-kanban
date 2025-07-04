@@ -21,6 +21,7 @@ import { TableView } from './Table/Table';
 import { KanbanContext, SearchContext } from './context';
 import { baseClassName, c, useSearchValue } from './helpers';
 import { DataTypes } from './types';
+import { TimerManager } from 'src/TimerManager';
 
 const boardScrollTiggers = [DataTypes.Item, DataTypes.Lane];
 const boardAccepts = [DataTypes.Lane];
@@ -173,6 +174,7 @@ export const Kanban = ({ view, stateManager }: KanbanProps) => {
       stateManager,
       boardModifiers,
       filePath,
+      timerManager: (view as any).plugin.timerManager as TimerManager,
     };
   }, [view, stateManager, boardModifiers, filePath, dateColors, tagColors]);
 

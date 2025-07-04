@@ -20,6 +20,7 @@ import { getParentWindow } from './dnd/util/getWindow';
 import { hasFrontmatterKey } from './helpers';
 import { t } from './lang/helpers';
 import { basicFrontmatter, frontmatterKey } from './parsers/common';
+import { TimerManager } from './TimerManager';
 
 interface WindowRegistry {
   viewMap: Map<string, KanbanView>;
@@ -52,6 +53,7 @@ export default class KanbanPlugin extends Plugin {
   // leafid => view mode
   kanbanFileModes: Record<string, string> = {};
   stateManagers: Map<TFile, StateManager> = new Map();
+  timerManager: TimerManager;
 
   windowRegistry: Map<Window, WindowRegistry> = new Map();
 
@@ -97,6 +99,9 @@ export default class KanbanPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings();
+
+    // Initialize global timer manager before any views mount
+    this.timerManager = new TimerManager(this);
 
     this.MarkdownEditor = getEditorClass(this.app);
 

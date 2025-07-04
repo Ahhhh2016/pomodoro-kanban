@@ -2,6 +2,7 @@ import { createContext } from 'preact/compat';
 import { KanbanView } from 'src/KanbanView';
 import { StateManager } from 'src/StateManager';
 import { IntersectionObserverHandler } from 'src/dnd/managers/ScrollManager';
+import { TimerManager } from 'src/TimerManager';
 
 import { BoardModifiers } from '../helpers/boardModifiers';
 import { Item, Lane, LaneSort } from './types';
@@ -11,6 +12,7 @@ export interface KanbanContextProps {
   stateManager: StateManager;
   boardModifiers: BoardModifiers;
   view: KanbanView;
+  timerManager: TimerManager;
 }
 
 export const KanbanContext = createContext<KanbanContextProps>(null);

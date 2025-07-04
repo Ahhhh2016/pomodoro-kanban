@@ -23,6 +23,7 @@ import { useItemMenu } from './ItemMenu';
 import { ItemMenuButton } from './ItemMenuButton';
 import { ItemMetadata } from './MetadataTable';
 import { getItemClassModifiers } from './helpers';
+import { ItemTimerButton } from './ItemTimerButton';
 
 export interface DraggableItemProps {
   item: Item;
@@ -130,6 +131,7 @@ const ItemInner = memo(function ItemInner({
           editState={editState}
           isStatic={isStatic}
         />
+        <ItemTimerButton item={item} editState={editState} setEditState={setEditState} />
         <ItemMenuButton editState={editState} setEditState={setEditState} showMenu={showItemMenu} />
       </div>
       <ItemMetadata searchQuery={isMatch ? searchQuery : undefined} item={item} />

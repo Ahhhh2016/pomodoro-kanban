@@ -22,9 +22,45 @@ export interface BaseFormat {
 
 export const completeString = `**${t('Complete')}**`;
 export const archiveString = '***';
-export const basicFrontmatter = ['---', '', `${frontmatterKey}: board`, '', '---', '', ''].join(
-  '\n'
-);
+// export const basicFrontmatter = ['---', '', `${frontmatterKey}: board`, '', '---', '', ''].join(
+//   '\n'
+// );
+// Add 7 empty columns
+export const basicFrontmatter = [
+  '---',
+  '',
+  `${frontmatterKey}: board`,
+  '',
+  '---',
+  '',
+  '## Monday',
+  '',
+  '',
+  '',
+  '## Tuesday',
+  '',
+  '',
+  '',
+  '## Wednesday',
+  '',
+  '',
+  '',
+  '## Thursday',
+  '',
+  '',
+  '',
+  '## Friday',
+  '',
+  '',
+  '',
+  '## Weekend',
+  '',
+  '',
+  '',
+].join('\n');
+
+
+
 
 export function settingsToCodeblock(board: Board): string {
   return [

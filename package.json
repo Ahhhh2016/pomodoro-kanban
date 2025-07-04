@@ -1,7 +1,7 @@
 {
-  "name": "obsidian-kanban",
+  "name": "pomodoro-kanban",
   "version": "2.0.51",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "description": "Pomodoro enhanced Kanban plugin for Obsidian.",
   "main": "main.js",
   "scripts": {
     "typecheck": "tsc --noemit",
