@@ -4,6 +4,7 @@ import { App, Modal, Notice } from 'obsidian';
 import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { TimerManager } from '../TimerManager';
+import { StopReasonModal } from './StopReasonModal';
 
 function formatTime(ms: number) {
   const totalSec = Math.floor(ms / 1000);
@@ -38,9 +39,25 @@ function TimerPanel({ timer, onClose }: Props) {
   const isRunning = timer.state.running;
   const timeStr = isPomodoro ? formatTime(timer.getRemaining()) : formatTime(timer.getElapsed());
 
-  const toggle = () => {
-    timer.toggle(timer.state.mode, timer.state.targetCardId);
+  const startTimer = () => {
+    if (!timer.state.targetCardId) {
+      new Notice('Select a card first');
+      return;
+    }
+    timer.start(timer.state.mode, timer.state.targetCardId);
   };
+
+  const onStopClick = () => {
+    new StopReasonModal(app, (reason, action) => {
+      if (action === 'pause') {
+        timer.pause();
+      } else {
+        timer.stop();
+        // could record reason if needed
+      }
+    }).open();
+  };
+
 
   const switchMode = () => {
     const newMode = isPomodoro ? 'stopwatch' : 'pomodoro';
@@ -53,7 +70,9 @@ function TimerPanel({ timer, onClose }: Props) {
       <h2 style={{ marginTop: 0 }}>{isPomodoro ? 'Pomodoro' : 'Stopwatch'}</h2>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ fontSize: '2rem', flexGrow: 1 }}>{timeStr}</div>
-        <button onClick={toggle}>{isRunning ? 'Stop' : 'Start'}</button>
+        <button onClick={isRunning ? onStopClick : startTimer}>
+          {isRunning ? 'Stop' : 'Start'}
+        </button>
       </div>
       <div style={{ marginTop: '8px', fontStyle: 'italic' }}>
         {timer.state.targetCardId ? `Card: ${timer.state.targetCardId}` : 'No card'}

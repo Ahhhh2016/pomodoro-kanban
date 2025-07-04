@@ -18,6 +18,8 @@ export class TimerManager {
   intervalId: number;
   readonly pomodoroDefault = 25 * 60 * 1000; // 25 minutes
 
+  private totals: Map<string, number> = new Map(); // cardId -> ms
+
   constructor(plugin: Plugin) {
     this.plugin = plugin;
     this.emitter = new EventEmitter();
@@ -59,6 +61,11 @@ export class TimerManager {
   }
 
   start(mode: TimerMode, cardId?: string) {
+    if (!cardId) {
+      new Notice('Select a card before starting the timer.');
+      return;
+    }
+
     if (this.state.running) {
       this.stop();
     }
@@ -70,16 +77,34 @@ export class TimerManager {
     this.emitter.emit('start');
   }
 
+  pause() {
+    if (!this.state.running) return;
+    this.state.elapsed += Date.now() - this.state.start;
+    this.state.running = false;
+    this.emitter.emit('pause');
+  }
+
   stop() {
     if (!this.state.running) return;
     this.state.elapsed += Date.now() - this.state.start;
+
+    if (this.state.targetCardId) {
+      const prev = this.totals.get(this.state.targetCardId) || 0;
+      this.totals.set(this.state.targetCardId, prev + this.state.elapsed);
+    }
+
     this.state.running = false;
     this.emitter.emit('stop');
   }
 
   toggle(mode: TimerMode, cardId?: string) {
+    if (!cardId) {
+      new Notice('Select a card before starting the timer.');
+      return;
+    }
+
     if (this.state.running && this.state.mode === mode && this.state.targetCardId === cardId) {
-      this.stop();
+      this.pause();
     } else {
       this.start(mode, cardId);
     }
@@ -102,5 +127,9 @@ export class TimerManager {
     if (this.state.mode !== 'pomodoro') return 0;
     const remaining = this.pomodoroDefault - this.getElapsed();
     return remaining > 0 ? remaining : 0;
+  }
+
+  getTotal(cardId: string) {
+    return this.totals.get(cardId) || 0;
   }
 } 

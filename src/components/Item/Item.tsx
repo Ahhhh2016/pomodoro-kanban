@@ -24,6 +24,7 @@ import { ItemMenuButton } from './ItemMenuButton';
 import { ItemMetadata } from './MetadataTable';
 import { getItemClassModifiers } from './helpers';
 import { ItemTimerButton } from './ItemTimerButton';
+import { CardFocusTime } from './CardFocusTime';
 
 export interface DraggableItemProps {
   item: Item;
@@ -135,6 +136,7 @@ const ItemInner = memo(function ItemInner({
         <ItemMenuButton editState={editState} setEditState={setEditState} showMenu={showItemMenu} />
       </div>
       <ItemMetadata searchQuery={isMatch ? searchQuery : undefined} item={item} />
+      <CardFocusTime item={item} />
     </div>
   );
 });
