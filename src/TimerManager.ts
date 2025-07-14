@@ -32,6 +32,8 @@ export class TimerManager {
   logs: FocusSession[] = [];
   /** Temp variable to track current session start time */
   private currentSessionStart: number = 0;
+  /** whether markdown logs have been parsed */
+  private markdownParsed = false;
   readonly pomodoroDefault = 25 * 60 * 1000; // 25 minutes
 
   constructor(plugin: Plugin) {
@@ -184,6 +186,7 @@ export class TimerManager {
 
   /** Returns total focused milliseconds for a given card */
   getTotalFocused(cardId?: string) {
+    this.ensureMarkdownLogs();
     if (!cardId) return 0;
     return this.logs
       .filter((l) => l.cardId === cardId)
@@ -192,9 +195,58 @@ export class TimerManager {
 
   /** Returns focus sessions for the given date (defaults to today) */
   getLogsForDate(date: Date = new Date()) {
+    this.ensureMarkdownLogs();
     const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
     const dayEnd = dayStart + 24 * 60 * 60 * 1000;
     return this.logs.filter((l) => l.start >= dayStart && l.start < dayEnd);
+  }
+
+  private ensureMarkdownLogs() {
+    if (this.markdownParsed) return;
+    this.parseLogsFromMarkdown();
+    this.markdownParsed = true;
+  }
+
+  private parseLogsFromMarkdown() {
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    if (!sms) return;
+    const lineRegex = /@\{(\d{4}-\d{2}-\d{2})\}\s+@@\{(\d{2}:\d{2})\}–@@\{(\d{2}:\d{2})\}\s+\((\d+)\s+m/;
+
+    for (const sm of sms.values()) {
+      const board = sm.state;
+      if (!board?.children) continue;
+      for (const lane of board.children) {
+        this.extractItemLogsRecursive(sm, lane.children, lineRegex);
+      }
+    }
+  }
+
+  private extractItemLogsRecursive(sm: any, items: any[], lineRegex: RegExp) {
+    if (!items) return;
+    for (const it of items) {
+      const lines = (it.data?.titleRaw as string)?.split(/\n/).slice(1) ?? [];
+      for (const ln of lines) {
+        const m = ln.trim().match(lineRegex);
+        if (m) {
+          const [_, dateStr, startStr, endStr, minsStr] = m;
+          const start = moment(`${dateStr} ${startStr}`, 'YYYY-MM-DD HH:mm').valueOf();
+          const end = moment(`${dateStr} ${endStr}`, 'YYYY-MM-DD HH:mm').valueOf();
+          const duration = parseInt(minsStr, 10) * 60000;
+          // prevent duplicates
+          if (!this.logs.find((l) => l.start === start && l.cardId === it.id)) {
+            this.logs.push({
+              cardId: it.id,
+              cardTitle: it.data?.title,
+              mode: 'stopwatch',
+              start,
+              end,
+              duration,
+            });
+          }
+        }
+      }
+      if (it.children?.length) this.extractItemLogsRecursive(sm, it.children, lineRegex);
+    }
   }
 
   private findItemInLane(lane: any, cardId: string): any {
@@ -225,8 +277,7 @@ export class TimerManager {
   /** Append session bullet under the corresponding card in markdown and update board */
   private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
     if (!cardId) return;
-    const line = `- ⏱ ${moment(start).format('YYYY-MM-DD HH:mm')}–${moment(end).format('HH:mm')} (${Math.round(duration / 60000)} m)`;
-
+    const line = `- ${moment(start).format('@{YYYY-MM-DD}')} @@{${moment(start).format('HH:mm')}} – @@{${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
     for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
       const board = sm.state;
       const updated = this.appendToBoard(sm, board, cardId, line);
