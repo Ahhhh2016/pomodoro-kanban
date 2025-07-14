@@ -1,4 +1,3 @@
-/** @jsx h */
 import { h } from 'preact';
 import { App, Modal, Notice } from 'obsidian';
 import { render } from 'preact';

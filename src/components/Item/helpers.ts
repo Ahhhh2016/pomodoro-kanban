@@ -4,13 +4,15 @@ import { StateManager } from 'src/StateManager';
 import { Path } from 'src/dnd/types';
 import { buildLinkToDailyNote } from 'src/helpers';
 import { getTaskStatusDone } from 'src/parsers/helpers/inlineMetadata';
+import { useContext } from 'preact/hooks';
+import { KanbanContext } from '../context';
+import { Item } from '../types';
 
 import { BoardModifiers } from '../../helpers/boardModifiers';
 import { getDefaultLocale } from '../Editor/datePickerLocale';
 import flatpickr from '../Editor/flatpickr';
 import { Instance } from '../Editor/flatpickr/types/instance';
 import { c, escapeRegExpStr } from '../helpers';
-import { Item } from '../types';
 
 export function constructDatePicker(
   win: Window,
@@ -293,6 +295,12 @@ export function getItemClassModifiers(item: Item) {
 
   if (item.data.checked && item.data.checkChar === getTaskStatusDone()) {
     classModifiers.push('is-complete');
+  }
+
+  // Add is-timing class if the item is being timed
+  const { timerManager } = useContext(KanbanContext);
+  if (timerManager && timerManager.isRunning(undefined, item.id)) {
+    classModifiers.push('is-timing');
   }
 
   for (const tag of item.data.metadata.tags) {

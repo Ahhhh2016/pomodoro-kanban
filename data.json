@@ -1,0 +1,31 @@
+{
+  "tag-colors": [
+    {
+      "tagKey": "",
+      "color": "",
+      "backgroundColor": ""
+    }
+  ],
+  "category-colors": [
+    {
+      "name": "#bug",
+      "color": "#d9534f"
+    },
+    {
+      "name": "#feature",
+      "color": "#5bc0de"
+    },
+    {
+      "name": "#chore",
+      "color": "#5cb85c"
+    },
+    {
+      "name": "#docs",
+      "color": "#f0ad4e"
+    },
+    {
+      "name": "#test",
+      "color": "#428bca"
+    }
+  ]
+}

@@ -143,13 +143,31 @@ export const DraggableItem = memo(function DraggableItem(props: DraggableItemPro
   const elementRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
   const search = useContext(SearchContext);
+  const { timerManager } = useContext(KanbanContext);
+  const [, forceUpdate] = useState({});
 
   const { itemIndex, ...innerProps } = props;
+
+  useEffect(() => {
+    if (!timerManager) return;
+    const update = () => forceUpdate({});
+    timerManager.emitter.on('start', update);
+    timerManager.emitter.on('stop', update);
+    return () => {
+      timerManager.emitter.off('start', update);
+      timerManager.emitter.off('stop', update);
+    };
+  }, [timerManager]);
 
   const bindHandle = useDragHandle(measureRef, measureRef);
 
   const isMatch = search?.query ? innerProps.item.data.titleSearch.includes(search.query) : false;
   const classModifiers: string[] = getItemClassModifiers(innerProps.item);
+  
+  // Add is-timing class if the item is being timed
+  if (timerManager && timerManager.isRunning(undefined, props.item.id)) {
+    classModifiers.push('is-timing');
+  }
 
   return (
     <div
