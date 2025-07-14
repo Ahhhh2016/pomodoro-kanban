@@ -47,8 +47,19 @@ const ItemInner = memo(function ItemInner({
   searchQuery,
   isStatic,
 }: ItemInnerProps) {
-  const { stateManager, boardModifiers } = useContext(KanbanContext);
+  const { stateManager, boardModifiers, timerManager } = useContext(KanbanContext);
   const [editState, setEditState] = useState<EditState>(EditingState.cancel);
+  const [, forceLocalUpdate] = useState({});
+
+  // Re-render this component when a focus session is logged
+  useEffect(() => {
+    if (!timerManager) return;
+    const refresh = () => forceLocalUpdate({});
+    timerManager.emitter.on('log', refresh);
+    return () => {
+      timerManager.emitter.off('log', refresh);
+    };
+  }, [timerManager]);
 
   const dndManager = useContext(DndManagerContext);
 
@@ -138,13 +149,19 @@ const ItemInner = memo(function ItemInner({
 
       {/* Focused time line */}
       {(() => {
-        const { timerManager } = useContext(KanbanContext);
         const totalMs = timerManager?.getTotalFocused(item.id) ?? 0;
         if (totalMs <= 0) return null;
         const hours = Math.floor(totalMs / 3600000);
         const minutes = Math.floor((totalMs % 3600000) / 60000);
         const str = `${hours ? hours + ' h ' : ''}${minutes} min`;
-        return <div className={c('item-focus-time')}>focused: {str}</div>;
+        return (
+          <div
+            className={c('item-focus-time')}
+            style={{ fontSize: '12px', opacity: 0.7, paddingInlineStart: 8 }}
+          >
+            focused: {str}
+          </div>
+        );
       })()}
     </div>
   );
@@ -164,9 +181,11 @@ export const DraggableItem = memo(function DraggableItem(props: DraggableItemPro
     const update = () => forceUpdate({});
     timerManager.emitter.on('start', update);
     timerManager.emitter.on('stop', update);
+    timerManager.emitter.on('log', update);
     return () => {
       timerManager.emitter.off('start', update);
       timerManager.emitter.off('stop', update);
+      timerManager.emitter.off('log', update);
     };
   }, [timerManager]);
 

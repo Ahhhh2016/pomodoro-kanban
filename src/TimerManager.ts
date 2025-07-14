@@ -1,5 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import { Notice, Plugin } from 'obsidian';
+import moment from 'moment';
+import update from 'immutability-helper';
 import { StopReasonModal } from './components/StopReasonModal';
 
 export type TimerMode = 'stopwatch' | 'pomodoro';
@@ -135,6 +137,8 @@ export class TimerManager {
           end,
           duration,
         });
+        // Persist to markdown
+        this.appendSessionToMarkdown(this.state.targetCardId, this.currentSessionStart, end, duration);
         this.emitter.emit('log');
 
         this.reset(this.state.mode, this.state.targetCardId);
@@ -216,5 +220,53 @@ export class TimerManager {
       }
     }
     return undefined;
+  }
+
+  /** Append session bullet under the corresponding card in markdown and update board */
+  private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
+    if (!cardId) return;
+    const line = `- ⏱ ${moment(start).format('YYYY-MM-DD HH:mm')}–${moment(end).format('HH:mm')} (${Math.round(duration / 60000)} m)`;
+
+    for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
+      const board = sm.state;
+      const updated = this.appendToBoard(sm, board, cardId, line);
+      if (updated) {
+        sm.setState(updated);
+        break; // card ids are unique across boards
+      }
+    }
+  }
+
+  private appendToBoard(sm: any, board: any, cardId: string, line: string): any | null {
+    const updateItems = (items: any[]): any[] => {
+      return items.map((it) => {
+        if (it.id === cardId) {
+          const newContent = it.data.titleRaw + `\n${line}`;
+          const newItem = sm.updateItemContent(it, newContent);
+          return newItem;
+        }
+        if (it.children?.length) {
+          const newChildren = updateItems(it.children);
+          if (newChildren !== it.children) {
+            return update(it, { children: { $set: newChildren } });
+          }
+        }
+        return it;
+      });
+    };
+
+    const traverseLanes = (lanes: any[]): any[] => {
+      return lanes.map((lane) => {
+        const newChildren = updateItems(lane.children);
+        if (newChildren !== lane.children) {
+          return update(lane, { children: { $set: newChildren } });
+        }
+        return lane;
+      });
+    };
+
+    const newLanes = traverseLanes(board.children);
+    if (newLanes === board.children) return null;
+    return update(board, { children: { $set: newLanes } });
   }
 } 
