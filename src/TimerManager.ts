@@ -12,11 +12,24 @@ interface TimerState {
   targetCardId?: string;
 }
 
+export interface FocusSession {
+  cardId?: string;
+  cardTitle?: string;
+  mode: TimerMode;
+  start: number;
+  end: number;
+  duration: number;
+}
+
 export class TimerManager {
   plugin: Plugin;
   emitter: EventEmitter;
   state: TimerState;
   intervalId: number;
+  /** List of all focus sessions */
+  logs: FocusSession[] = [];
+  /** Temp variable to track current session start time */
+  private currentSessionStart: number = 0;
   readonly pomodoroDefault = 25 * 60 * 1000; // 25 minutes
 
   constructor(plugin: Plugin) {
@@ -92,6 +105,7 @@ export class TimerManager {
     this.state.targetCardId = cardId;
     this.state.running = true;
     this.state.start = Date.now();
+    this.currentSessionStart = this.state.start;
     this.emitter.emit('start');
     this.emitter.emit('change');
   }
@@ -111,6 +125,18 @@ export class TimerManager {
         new Notice(`Timer stopped: ${reason}`);
         
         // Reset timer state
+        const end = Date.now();
+        const duration = end - this.currentSessionStart;
+        this.logs.push({
+          cardId: this.state.targetCardId,
+          cardTitle: this.getCardTitle(this.state.targetCardId),
+          mode: this.state.mode,
+          start: this.currentSessionStart,
+          end,
+          duration,
+        });
+        this.emitter.emit('log');
+
         this.reset(this.state.mode, this.state.targetCardId);
         this.emitter.emit('change');
       },
@@ -150,5 +176,45 @@ export class TimerManager {
     if (this.state.mode !== 'pomodoro') return 0;
     const remaining = this.pomodoroDefault - this.getElapsed();
     return remaining > 0 ? remaining : 0;
+  }
+
+  /** Returns total focused milliseconds for a given card */
+  getTotalFocused(cardId?: string) {
+    if (!cardId) return 0;
+    return this.logs
+      .filter((l) => l.cardId === cardId)
+      .reduce((sum, l) => sum + l.duration, 0);
+  }
+
+  /** Returns focus sessions for the given date (defaults to today) */
+  getLogsForDate(date: Date = new Date()) {
+    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+    return this.logs.filter((l) => l.start >= dayStart && l.start < dayEnd);
+  }
+
+  private findItemInLane(lane: any, cardId: string): any {
+    if (!lane?.children) return null;
+    for (const child of lane.children) {
+      if (child?.data?.title && child.id === cardId) return child;
+      const found = this.findItemInLane(child, cardId);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  private getCardTitle(cardId?: string): string | undefined {
+    if (!cardId) return undefined;
+    if (!(this.plugin as any).stateManagers) return undefined;
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    for (const sm of sms.values()) {
+      const board = sm.state;
+      if (!board?.children) continue;
+      for (const lane of board.children) {
+        const item = this.findItemInLane(lane, cardId);
+        if (item) return item.data?.title;
+      }
+    }
+    return undefined;
   }
 } 

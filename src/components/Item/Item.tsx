@@ -135,6 +135,17 @@ const ItemInner = memo(function ItemInner({
         <ItemMenuButton editState={editState} setEditState={setEditState} showMenu={showItemMenu} />
       </div>
       <ItemMetadata searchQuery={isMatch ? searchQuery : undefined} item={item} />
+
+      {/* Focused time line */}
+      {(() => {
+        const { timerManager } = useContext(KanbanContext);
+        const totalMs = timerManager?.getTotalFocused(item.id) ?? 0;
+        if (totalMs <= 0) return null;
+        const hours = Math.floor(totalMs / 3600000);
+        const minutes = Math.floor((totalMs % 3600000) / 60000);
+        const str = `${hours ? hours + ' h ' : ''}${minutes} min`;
+        return <div className={c('item-focus-time')}>focused: {str}</div>;
+      })()}
     </div>
   );
 });
