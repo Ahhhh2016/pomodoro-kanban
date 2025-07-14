@@ -43,8 +43,10 @@ function TimerPanel({ timer, onClose }: Props) {
 
   const switchMode = () => {
     const newMode = isPomodoro ? 'stopwatch' : 'pomodoro';
-    timer.stop();
-    timer.start(newMode, timer.state.targetCardId);
+    if (timer.state.running) {
+      timer.stop();
+    }
+    timer.reset(newMode, timer.state.targetCardId);
   };
 
   return (

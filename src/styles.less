@@ -1791,3 +1791,34 @@ body:not(.native-scrollbars) .kanban-plugin__scroll-container::-webkit-scrollbar
   font-size: 0.8em;
   opacity: 0.8;
 }
+
+.kanban-plugin__stop-reason-panel {
+  padding: 20px;
+  min-width: 300px;
+}
+
+.kanban-plugin__stop-reason-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kanban-plugin__stop-reason-item {
+  text-align: left;
+  padding: 10px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  color: var(--text-normal);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--background-modifier-hover);
+  }
+
+  &.kanban-plugin__stop-reason-add {
+    color: var(--text-muted);
+    border-style: dashed;
+  }
+}
