@@ -77,6 +77,12 @@ export class TimerManager {
   }
 
   start(mode: TimerMode, cardId?: string) {
+    // Prevent starting a timer without a target card
+    if (!cardId) {
+      new Notice('Please select a card before starting the timer');
+      return;
+    }
+
     // Don't start if we're in the middle of stopping
     if (this.state.running) {
       return;
