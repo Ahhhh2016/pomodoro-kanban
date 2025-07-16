@@ -16,6 +16,7 @@ function formatTime(ms: number) {
 
 interface Props {
   timer: TimerManager;
+  boardStateManager: any; // current board's state manager (for filtering card ids)
   onClose: () => void;
 }
 
@@ -24,22 +25,25 @@ interface SessionBlockProps {
 }
 
 function SessionBlock({ session }: SessionBlockProps) {
-  const dateStr = moment(session.start).format('YYYY-MM-DD');
   const startStr = moment(session.start).format('HH:mm');
   const endStr = moment(session.end).format('HH:mm');
+  const rawTitle = session.cardTitle ?? session.cardId ?? 'Untitled';
+  const firstLine = rawTitle.split('\n')[0];
+  const displayTitle = firstLine.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+
   return (
     <div className="kanban-timer-session-block">
       {/* 第一行：标题 */}
-      <div>{session.cardTitle ?? session.cardId ?? 'Untitled'}</div>
+      <div>{displayTitle}</div>
       {/* 第二行：日期 + 时间范围 */}
       <em>
-        {dateStr} {startStr} – {endStr}
+        {startStr} – {endStr}
       </em>
     </div>
   );
 }
 
-function TimerPanel({ timer, onClose }: Props) {
+function TimerPanel({ timer, boardStateManager, onClose }: Props) {
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -60,8 +64,25 @@ function TimerPanel({ timer, onClose }: Props) {
   const isRunning = timer.state.running;
   const timeStr = isPomodoro ? formatTime(timer.getRemaining()) : formatTime(timer.getElapsed());
 
-  // Ensure markdown logs are loaded and get today's logs across all cards
-  const todayLogs = timer.getLogsForDate();
+  // Collect all card IDs belonging to this board so we can filter logs
+  const collectIds = (items: any[]): string[] => {
+    if (!items) return [];
+    const ids: string[] = [];
+    for (const it of items) {
+      if (it.id) ids.push(it.id);
+      if (it.children?.length) ids.push(...collectIds(it.children));
+    }
+    return ids;
+  };
+
+  const boardCardIds: Set<string> = new Set(
+    collectIds(boardStateManager?.state?.children ?? [])
+  );
+
+  // Ensure markdown logs are loaded and get today's logs, then filter by board
+  const todayLogs = timer
+    .getLogsForDate()
+    .filter((s) => s.cardId && boardCardIds.has(s.cardId));
   const totalMs = todayLogs.reduce((sum, s) => sum + s.duration, 0);
   const totalMin = Math.floor(totalMs / 60000);
   const pomodoroCount = todayLogs.filter((s) => s.mode === 'pomodoro').length;
@@ -120,13 +141,22 @@ function TimerPanel({ timer, onClose }: Props) {
 
 export class TimerPanelModal extends Modal {
   timer: TimerManager;
-  constructor(app: App, timer: TimerManager) {
+  boardStateManager: any;
+  constructor(app: App, timer: TimerManager, boardStateManager: any) {
     super(app);
     this.timer = timer;
+    this.boardStateManager = boardStateManager;
   }
 
   onOpen() {
-    render(<TimerPanel timer={this.timer} onClose={() => this.close()} />, this.contentEl);
+    render(
+      <TimerPanel
+        timer={this.timer}
+        boardStateManager={this.boardStateManager}
+        onClose={() => this.close()}
+      />,
+      this.contentEl
+    );
   }
 
   onClose() {

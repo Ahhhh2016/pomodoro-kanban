@@ -503,7 +503,7 @@ export class KanbanView extends TextFileView implements HoverParent {
           if (!isRunning) {
             timerManager.toggle(mode);
           } else {
-            new TimerPanelModal(this.app, timerManager).open();
+            new TimerPanelModal(this.app, timerManager, stateManager).open();
           }
         });
       }

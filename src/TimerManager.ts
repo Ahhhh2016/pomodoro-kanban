@@ -34,6 +34,8 @@ export class TimerManager {
   private currentSessionStart: number = 0;
   /** whether markdown logs have been parsed */
   private markdownParsed = false;
+  /** track number of state managers parsed */
+  private lastParsedSmCount = 0;
   readonly pomodoroDefault = 25 * 60 * 1000; // 25 minutes
 
   constructor(plugin: Plugin) {
@@ -202,9 +204,13 @@ export class TimerManager {
   }
 
   private ensureMarkdownLogs() {
-    if (this.markdownParsed) return;
-    this.parseLogsFromMarkdown();
-    this.markdownParsed = true;
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    if (!sms) return;
+    if (!this.markdownParsed || sms.size !== this.lastParsedSmCount) {
+      this.parseLogsFromMarkdown();
+      this.markdownParsed = true;
+      this.lastParsedSmCount = sms.size;
+    }
   }
 
   private parseLogsFromMarkdown() {
