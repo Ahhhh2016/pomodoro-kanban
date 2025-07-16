@@ -277,7 +277,7 @@ export class TimerManager {
   /** Append session bullet under the corresponding card in markdown and update board */
   private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
     if (!cardId) return;
-    const line = `- ${moment(start).format('@{YYYY-MM-DD}')} @@{${moment(start).format('HH:mm')}} – @@{${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
+    const line = `++ ${moment(start).format('@{YYYY-MM-DD}')} @@{${moment(start).format('HH:mm')}} – @@{${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
     for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
       const board = sm.state;
       const updated = this.appendToBoard(sm, board, cardId, line);

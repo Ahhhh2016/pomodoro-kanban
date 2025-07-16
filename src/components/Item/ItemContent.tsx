@@ -24,6 +24,7 @@ import { c, useGetDateColorFn, useGetTagColorFn } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
 import { DateAndTime, RelativeDate } from './DateAndTime';
 import { InlineMetadata } from './InlineMetadata';
+import { preprocessTitle } from '../../parsers/helpers/hydrateBoard';
 import {
   constructDatePicker,
   constructMenuDatePickerOnChange,
@@ -304,6 +305,22 @@ export const ItemContent = memo(function ItemContent({
           />
           <InlineMetadata item={item} stateManager={stateManager} />
           <Tags tags={item.data.metadata.tags} searchQuery={searchQuery} />
+
+          {item.data.metadata.timelogs?.length > 0 && (
+            <div className={c('item-timelogs')}>
+              {item.data.metadata.timelogs.map((log, i) => {
+                // Replace leading '++' with the tomato emoji for display
+                const displayLog = log.replace(/^\s*\+\+\s/, '🍅 ');
+                return (
+                  <span
+                    key={i}
+                    className={c('item-timelog')}
+                    dangerouslySetInnerHTML={{ __html: preprocessTitle(stateManager, displayLog) }}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -105,6 +105,7 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       file: undefined,
       fileMetadata: undefined,
       fileMetadataOrder: undefined,
+      timelogs: undefined,
     },
     checked: item.checked,
     checkChar: item.checked ? item.checkChar || ' ' : ' ',
@@ -192,6 +193,23 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
   );
 
   itemData.title = preprocessTitle(stateManager, dedentNewLines(executeDeletion(title)));
+
+  // Extract timelog lines (those starting with "++") and move them to metadata
+  const timelogPattern = /^\s*(\+\+|🍅)\s/;
+  const timelogLines = itemData.titleRaw
+    .split(/\n/)
+    .slice(1) // skip first line (actual card title)
+    .filter((l) => timelogPattern.test(l.trim()));
+
+  if (timelogLines.length) {
+    itemData.metadata.timelogs = timelogLines;
+
+    // Remove timelog lines from the rendered title so they only appear in the footer
+    itemData.title = itemData.title
+      .split('\n')
+      .filter((l) => !timelogPattern.test(l.trim()))
+      .join('\n');
+  }
 
   const firstLineEnd = itemData.title.indexOf('\n');
   const inlineFields = extractInlineFields(itemData.title, true);

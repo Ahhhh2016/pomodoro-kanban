@@ -75,6 +75,8 @@ export interface ItemMetadata {
   fileMetadata?: FileMetadata;
   fileMetadataOrder?: string[];
   inlineMetadata?: InlineField[];
+  /** Lines of focus session logs appended to this card */
+  timelogs?: string[];
 }
 
 export interface ItemData {
