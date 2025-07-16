@@ -498,13 +498,9 @@ export class KanbanView extends TextFileView implements HoverParent {
       mode: 'stopwatch' | 'pomodoro'
     ) => {
       if (!this.actionButtons[key]) {
-        this.actionButtons[key] = this.addAction(icon, label, (evt) => {
-          const isRunning = timerManager.state.running;
-          if (!isRunning) {
-            timerManager.toggle(mode);
-          } else {
-            new TimerPanelModal(this.app, timerManager, stateManager).open();
-          }
+        // Button now only opens the TimerPanel; it no longer starts/stops the timer
+        this.actionButtons[key] = this.addAction(icon, label, () => {
+          new TimerPanelModal(this.app, timerManager, stateManager).open();
         });
       }
 
@@ -526,15 +522,16 @@ export class KanbanView extends TextFileView implements HoverParent {
       // Reset content
       btn.innerHTML = '';
 
+      btn.createSpan({ text: `🕰️ ${displayTime}` });
+
       // icon using unicode
-      const iconChar = isRunning ? '⏸' : '▶';
-      btn.createSpan({ text: iconChar, cls: 'kanban-plugin__unicode-icon' });
+      // btn.createSpan({ text: '🕰️ ', cls: 'kanban-plugin__unicode-icon' });
 
-      // time text
-      btn.createSpan({ text: ` ${displayTime} ` });
+      // time text with a leading space for proper separation
+      // btn.createSpan({ text: ` ${displayTime}` });
 
-      // arrow icon
-      const arrow = btn.createSpan({ text: '▼', cls: 'kanban-timer-arrow' });
+      // menu/hamburger icon at the end
+      // btn.createSpan({ text: '☰', cls: 'kanban-timer-arrow' });
     };
 
     // single global timer button showing current mode
