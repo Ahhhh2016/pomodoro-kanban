@@ -157,9 +157,9 @@ const ItemInner = memo(function ItemInner({
         return (
           <div
             className={c('item-focus-time')}
-            style={{ fontSize: '12px', opacity: 0.7, paddingInlineStart: 8 }}
+            style={{ fontSize: '12px', opacity: 0.6, paddingInlineStart: 8 }}
           >
-            focused: {str}
+            Focused: {str}
           </div>
         );
       })()}

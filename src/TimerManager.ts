@@ -210,7 +210,8 @@ export class TimerManager {
   private parseLogsFromMarkdown() {
     const sms: Map<any, any> = (this.plugin as any).stateManagers;
     if (!sms) return;
-    const lineRegex = /@\{(\d{4}-\d{2}-\d{2})\}\s+@@\{(\d{2}:\d{2})\}–@@\{(\d{2}:\d{2})\}\s+\((\d+)\s+m/;
+    // Match timelog lines with optional list bullet, supporting ++, 🍅, or ⏱ markers, allowing spaces around dash variants (–, —, -)
+    const lineRegex = /^(?:[-*]\s+)?(?:\+\+|🍅|⏱)\s+@\{(\d{4}-\d{2}-\d{2})\}\s+@@\{(\d{2}:\d{2})\}\s*[–—-]\s*@@\{(\d{2}:\d{2})\}\s+\((\d+)\s+m/;
 
     for (const sm of sms.values()) {
       const board = sm.state;
@@ -237,7 +238,7 @@ export class TimerManager {
             this.logs.push({
               cardId: it.id,
               cardTitle: it.data?.title,
-              mode: 'stopwatch',
+              mode: ln.includes('🍅') ? 'pomodoro' : 'stopwatch',
               start,
               end,
               duration,

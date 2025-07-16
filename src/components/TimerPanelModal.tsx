@@ -24,13 +24,16 @@ interface SessionBlockProps {
 }
 
 function SessionBlock({ session }: SessionBlockProps) {
-  const startStr = moment(session.start).format('hh:mm A');
-  const endStr = moment(session.end).format('hh:mm A');
+  const dateStr = moment(session.start).format('YYYY-MM-DD');
+  const startStr = moment(session.start).format('HH:mm');
+  const endStr = moment(session.end).format('HH:mm');
   return (
     <div className="kanban-timer-session-block">
+      {/* 第一行：标题 */}
       <div>{session.cardTitle ?? session.cardId ?? 'Untitled'}</div>
+      {/* 第二行：日期 + 时间范围 */}
       <em>
-        {startStr} — {endStr}
+        {dateStr} {startStr} – {endStr}
       </em>
     </div>
   );
@@ -57,12 +60,11 @@ function TimerPanel({ timer, onClose }: Props) {
   const isRunning = timer.state.running;
   const timeStr = isPomodoro ? formatTime(timer.getRemaining()) : formatTime(timer.getElapsed());
 
-  // Today's logs
+  // Ensure markdown logs are loaded and get today's logs across all cards
   const todayLogs = timer.getLogsForDate();
   const totalMs = todayLogs.reduce((sum, s) => sum + s.duration, 0);
   const totalMin = Math.floor(totalMs / 60000);
   const pomodoroCount = todayLogs.filter((s) => s.mode === 'pomodoro').length;
-
   const totalStr = totalMin >= 60 ? `${Math.floor(totalMin / 60)}h ${totalMin % 60}m` : `${totalMin}m`;
 
   const toggle = () => {
@@ -91,7 +93,7 @@ function TimerPanel({ timer, onClose }: Props) {
       </div>
 
       {/* Session blocks */}
-      <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '40vh', overflowY: 'auto' }}>
         {todayLogs.map((s) => (
           <SessionBlock key={s.start} session={s} />
         ))}
