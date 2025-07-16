@@ -10,6 +10,7 @@ import {
   ViewStateResult,
   WorkspaceLeaf,
   debounce,
+  Notice,
 } from 'obsidian';
 
 import { KanbanFormat, KanbanSettings, KanbanViewSettings, SettingsModal } from './Settings';
@@ -498,9 +499,49 @@ export class KanbanView extends TextFileView implements HoverParent {
       mode: 'stopwatch' | 'pomodoro'
     ) => {
       if (!this.actionButtons[key]) {
-        // Button now only opens the TimerPanel; it no longer starts/stops the timer
+        // Enhanced behaviour: if no timer is running, prompt user to pick a card and start timing it
         this.actionButtons[key] = this.addAction(icon, label, () => {
-          new TimerPanelModal(this.app, timerManager, stateManager).open();
+          // If a timer is already running, just open the panel
+          if (timerManager.state.running) {
+            new TimerPanelModal(this.app, timerManager, stateManager).open();
+            return;
+          }
+
+          // Prompt the user to choose a card
+          new Notice('Please select a card before starting a timer');
+
+          const win = this.getWindow();
+
+          // Register a one-time global click listener after current event loop
+          win.setTimeout(() => {
+            const clickListener = (e: MouseEvent) => {
+              const target = e.target as HTMLElement;
+              if (!target) return;
+
+              // Find the nearest item element
+              const itemEl = target.closest('.' + c('item')) as HTMLElement | null;
+              if (!itemEl) return;
+
+              // The measure node (or its ancestors) should carry data-hitboxid containing the card id
+              const wrapper = itemEl.closest('[data-hitboxid]') as HTMLElement | null;
+              const hitboxId = wrapper?.dataset?.hitboxid;
+              if (!hitboxId) return;
+
+              const cardId = hitboxId.substring(hitboxId.lastIndexOf('-') + 1);
+              if (!cardId) return;
+
+              // Start the timer with the previous mode (defaults maintained by TimerManager)
+              timerManager.start(timerManager.state.mode, cardId);
+
+              // Cleanup
+              win.removeEventListener('click', clickListener, true);
+
+              // Prevent further handling of this click
+              e.stopPropagation();
+            };
+
+            win.addEventListener('click', clickListener, { capture: true });
+          }, 0);
         });
       }
 
