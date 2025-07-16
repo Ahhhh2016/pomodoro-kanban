@@ -158,11 +158,34 @@ export class TimerManager {
   toggle(mode: TimerMode, cardId?: string) {
     // 如果有计时器在运行
     if (this.state.running) {
-      // 无论点击哪个计时器，都先停止当前的计时器
-      this.stop();
+      // 正在运行时，如果点击的是同一个卡片 => 停止计时
+      if (!cardId || cardId === this.state.targetCardId) {
+        this.stop();
+        return;
+      }
+
+      // 切换到新的卡片：记录之前卡片的日志，然后继续
+      const now = Date.now();
+      const duration = now - this.currentSessionStart;
+      // 记录前一段 session
+      this.logs.push({
+        cardId: this.state.targetCardId,
+        cardTitle: this.getCardTitle(this.state.targetCardId),
+        mode: this.state.mode,
+        start: this.currentSessionStart,
+        end: now,
+        duration,
+      });
+      this.appendSessionToMarkdown(this.state.targetCardId, this.currentSessionStart, now, duration);
+      this.emitter.emit('log');
+
+      // 切换目标卡片并重置当前 session 起点
+      this.state.targetCardId = cardId;
+      this.currentSessionStart = now;
+      this.emitter.emit('change');
       return;
     }
-    
+
     // 如果没有计时器在运行，直接启动被点击的计时器
     this.start(mode, cardId);
   }
