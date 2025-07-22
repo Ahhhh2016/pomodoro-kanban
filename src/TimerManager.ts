@@ -53,10 +53,34 @@ export class TimerManager {
     // Apply initial durations from settings
     this.updateSettings();
 
+    // Subscribe to board-specific duration changes
+    this.subscribeBoardDurationChanges();
+
     // Obsidian helper that clears when plugin unloads
     this.intervalId = (plugin.registerInterval as any)(
       window.setInterval(() => this.tick(), 1000)
     );
+  }
+
+  /** Attach listeners to each board's settings notifier so local duration changes apply immediately */
+  private subscribeBoardDurationChanges() {
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    if (!sms) return;
+    sms.forEach((sm: any) => {
+      if (!sm?.settingsNotifiers) return;
+      let arr = sm.settingsNotifiers.get('timer-pomodoro');
+      if (!arr) {
+        arr = [];
+        sm.settingsNotifiers.set('timer-pomodoro', arr);
+      }
+      const listener = () => {
+        // If current timer belongs to this board, update duration
+        if (this.state.running && this.resolvePomodoroForCard(this.state.targetCardId) !== null) {
+          this.applyPomodoroForCard(this.state.targetCardId);
+        }
+      };
+      arr.push(listener);
+    });
   }
 
   /**
@@ -118,7 +142,8 @@ export class TimerManager {
     if (this.state.mode === 'pomodoro') {
       const spent = Date.now() - this.state.start + this.state.elapsed;
       if (spent >= this.pomodoroDefault) {
-        this.stop();
+        // Auto-complete pomodoro without interruption reason panel
+        this.stop(false);
         new Notice('Pomodoro complete!');
       }
     }
@@ -176,40 +201,56 @@ export class TimerManager {
     this.emitter.emit('change');
   }
 
-  stop() {
+  /**
+   * Stop the current timer.
+   * @param askReason When true, shows StopReasonModal to collect interruption reason. When false, directly finalizes the session.
+   */
+  stop(askReason: boolean = true) {
     if (!this.state.running) return;
-    
+ 
     // Temporarily stop the timer
     this.stopTimer();
     
-    // Show stop reason modal
+    const finalizeSession = () => {
+      const end = Date.now();
+      const duration = end - this.currentSessionStart;
+      this.logs.push({
+        cardId: this.state.targetCardId,
+        cardTitle: this.getCardTitle(this.state.targetCardId),
+        mode: this.state.mode,
+        start: this.currentSessionStart,
+        end,
+        duration,
+      });
+      this.appendSessionToMarkdown(
+        this.state.targetCardId,
+        this.currentSessionStart,
+        end,
+        duration
+      );
+      this.emitter.emit('log');
+
+      this.reset(this.state.mode, this.state.targetCardId);
+      this.emitter.emit('change');
+    };
+
+    if (!askReason) {
+      // Directly finalize without modal
+      finalizeSession();
+      return;
+    }
+
+    // Show stop reason modal for interruptions
     new StopReasonModal(
-      this.plugin.app, 
+      this.plugin.app,
       (reason: string) => {
-        // First emit stop event
+        // User selected reason, finalize
         this.emitter.emit('stop');
         new Notice(`Timer stopped: ${reason}`);
-        
-        // Reset timer state
-        const end = Date.now();
-        const duration = end - this.currentSessionStart;
-        this.logs.push({
-          cardId: this.state.targetCardId,
-          cardTitle: this.getCardTitle(this.state.targetCardId),
-          mode: this.state.mode,
-          start: this.currentSessionStart,
-          end,
-          duration,
-        });
-        // Persist to markdown
-        this.appendSessionToMarkdown(this.state.targetCardId, this.currentSessionStart, end, duration);
-        this.emitter.emit('log');
-
-        this.reset(this.state.mode, this.state.targetCardId);
-        this.emitter.emit('change');
+        finalizeSession();
       },
       () => {
-        // Resume timer if modal is closed without selecting a reason
+        // Resume timer if modal closed without selecting a reason
         this.resumeTimer();
       }
     ).open();

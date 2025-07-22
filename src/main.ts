@@ -22,6 +22,9 @@ import { t } from './lang/helpers';
 import { basicFrontmatter, frontmatterKey } from './parsers/common';
 import { TimerManager } from './TimerManager';
 
+// Obsidian provides a global `app` variable; declare it for type checking
+declare const app: any;
+
 interface WindowRegistry {
   viewMap: Map<string, KanbanView>;
   viewStateReceivers: Array<(views: KanbanView[]) => void>;
