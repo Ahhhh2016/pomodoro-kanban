@@ -6,6 +6,7 @@ import {
   PluginSettingTab,
   Setting,
   ToggleComponent,
+  TextComponent,
 } from 'obsidian';
 
 import { KanbanView } from './KanbanView';
@@ -90,6 +91,22 @@ export interface KanbanSettings {
   'tag-sort'?: TagSort[];
   'time-format'?: string;
   'time-trigger'?: string;
+
+  /* ================= Timer Settings ================= */
+  /** Pomodoro duration in minutes */
+  'timer-pomodoro'?: number;
+  /** Short break duration in minutes */
+  'timer-short-break'?: number;
+  /** Long break duration in minutes */
+  'timer-long-break'?: number;
+  /** Number of pomodoros before a long break */
+  'timer-long-break-interval'?: number;
+  /** List of interrupt reasons */
+  'timer-interrupts'?: string[];
+  /** Enable notification sounds */
+  'timer-enable-sounds'?: boolean;
+  /** Audio file path (in vault) for end-of-session sound */
+  'timer-sound-file'?: string;
 }
 
 export interface KanbanViewSettings {
@@ -138,6 +155,14 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'tag-sort',
   'time-format',
   'time-trigger',
+  /* ===== Timer Settings ===== */
+  'timer-pomodoro',
+  'timer-short-break',
+  'timer-long-break',
+  'timer-long-break-interval',
+  'timer-interrupts',
+  'timer-enable-sounds',
+  'timer-sound-file',
 ]);
 
 export type SettingRetriever = <K extends keyof KanbanSettings>(
@@ -1530,6 +1555,182 @@ export class SettingsManager {
             });
         });
     });
+
+    /* ================= Timer Settings ================= */
+    contentEl.createEl('h3', { text: 'Timer Settings' });
+
+    /* Durations */
+    contentEl.createEl('h4', { text: 'Durations' });
+
+    const makeDurationSetting = (
+      key: keyof KanbanSettings,
+      label: string,
+      placeholder: string,
+      defaultVal: number
+    ) => {
+      new Setting(contentEl)
+        .setName(label)
+        .then((setting) => {
+          let inputComponent: TextComponent;
+
+          setting
+            .addText((text) => {
+              inputComponent = text;
+
+              text.setPlaceholder(placeholder);
+
+              const [value, globalValue] = this.getSetting(key, local);
+
+              const current = (value ?? globalValue ?? defaultVal) as number;
+              text.setValue(String(current));
+
+              text.onChange((val) => {
+                if (!numberRegEx.test(val)) {
+                  text.inputEl.toggleClass('mod-invalid', true);
+                  return;
+                }
+
+                text.inputEl.toggleClass('mod-invalid', false);
+
+                this.applySettingsUpdate({
+                  [key]: { $set: Number(val) },
+                } as any);
+              });
+            })
+            .addExtraButton((b) => {
+              b.setIcon('lucide-rotate-ccw')
+                .setTooltip('Reset to default')
+                .onClick(() => {
+                  const [, globalValue] = this.getSetting(key, local);
+                  inputComponent.setValue(String(globalValue ?? defaultVal));
+
+                  this.applySettingsUpdate({
+                    $unset: [key as string],
+                  } as any);
+                });
+            });
+        });
+    };
+
+    makeDurationSetting('timer-pomodoro', 'Pomodoro (minutes)', '25', 25);
+    makeDurationSetting('timer-short-break', 'Short break (minutes)', '5', 5);
+    makeDurationSetting('timer-long-break', 'Long break (minutes)', '15', 15);
+    makeDurationSetting(
+      'timer-long-break-interval',
+      'Long break interval',
+      '4',
+      4
+    );
+
+    /* Interrupt reasons */
+    contentEl.createEl('h4', { text: 'Interrupt Reasons' });
+
+    new Setting(contentEl)
+      .setName('Reasons (comma separated)')
+      .then((setting) => {
+        let inputComponent: TextComponent;
+
+        setting
+          .addText((text) => {
+            inputComponent = text;
+
+            const [value, globalValue] = this.getSetting('timer-interrupts', local);
+
+            const currentArray = (
+              (value as string[]) || (globalValue as string[]) || []
+            ) as string[];
+            text.setValue(currentArray.join(', '));
+
+            text.onChange((val) => {
+              const arr = val
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean);
+              this.applySettingsUpdate({
+                'timer-interrupts': { $set: arr },
+              });
+            });
+          })
+          .addExtraButton((b) => {
+            b.setIcon('lucide-rotate-ccw')
+              .setTooltip('Reset to default')
+              .onClick(() => {
+                const [, globalValue] = this.getSetting('timer-interrupts', local);
+                const resetVal = ((globalValue as string[]) || []).join(', ');
+                inputComponent.setValue(resetVal);
+
+                this.applySettingsUpdate({
+                  $unset: ['timer-interrupts'],
+                });
+              });
+          });
+      });
+
+    /* Sounds */
+    contentEl.createEl('h4', { text: 'Sounds' });
+
+    new Setting(contentEl).setName('Enable sounds').then((setting) => {
+      let toggleComponent: ToggleComponent;
+
+      setting
+        .addToggle((toggle) => {
+          toggleComponent = toggle;
+
+          const [value, globalValue] = this.getSetting('timer-enable-sounds', local);
+          toggle.setValue((value ?? globalValue ?? false) as boolean);
+
+          toggle.onChange((val) => {
+            this.applySettingsUpdate({
+              'timer-enable-sounds': { $set: val },
+            });
+          });
+        })
+        .addExtraButton((b) => {
+          b.setIcon('lucide-rotate-ccw')
+            .setTooltip('Reset to default')
+            .onClick(() => {
+              const [, globalValue] = this.getSetting('timer-enable-sounds', local);
+              toggleComponent.setValue((globalValue as boolean) ?? false);
+
+              this.applySettingsUpdate({
+                $unset: ['timer-enable-sounds'],
+              });
+            });
+        });
+    });
+
+    new Setting(contentEl)
+      .setName('Sound file path')
+      .setDesc('Relative path in vault to play when a session ends')
+      .then((setting) => {
+        let inputComponent: TextComponent;
+
+        setting
+          .addText((text) => {
+            inputComponent = text;
+
+            const [value, globalValue] = this.getSetting('timer-sound-file', local);
+            text.setValue((value as string) || (globalValue as string) || '');
+
+            text.onChange((val) => {
+              this.applySettingsUpdate({
+                'timer-sound-file': { $set: val },
+              });
+            });
+          })
+          .addExtraButton((b) => {
+            b.setIcon('lucide-rotate-ccw')
+              .setTooltip('Reset to default')
+              .onClick(() => {
+                const [, globalValue] = this.getSetting('timer-sound-file', local);
+                inputComponent.setValue((globalValue as string) || '');
+
+                this.applySettingsUpdate({
+                  $unset: ['timer-sound-file'],
+                });
+              });
+          });
+      });
   }
 
   cleanUp() {

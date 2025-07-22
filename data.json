@@ -27,5 +27,7 @@
       "name": "#test",
       "color": "#428bca"
     }
-  ]
+  ],
+  "timer-pomodoro": 30,
+  "show-checkboxes": false
 }

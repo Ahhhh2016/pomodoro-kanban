@@ -125,6 +125,9 @@ export default class KanbanPlugin extends Plugin {
         this.settings = newSettings;
         await this.saveSettings();
 
+        // Update timer durations based on new settings
+        this.timerManager?.updateSettings();
+
         // Force a complete re-render when settings change
         this.stateManagers.forEach((stateManager) => {
           stateManager.forceRefresh();

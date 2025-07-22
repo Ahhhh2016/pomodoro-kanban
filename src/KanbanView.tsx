@@ -508,7 +508,7 @@ export class KanbanView extends TextFileView implements HoverParent {
           }
 
           // Prompt the user to choose a card
-          new Notice('Please select a card before starting a timer');
+          const notice = new Notice('Please select a card before starting a timer');
 
           const win = this.getWindow();
 
@@ -532,6 +532,9 @@ export class KanbanView extends TextFileView implements HoverParent {
 
               // Start the timer with the previous mode (defaults maintained by TimerManager)
               timerManager.start(timerManager.state.mode, cardId);
+
+              // Hide the notice after starting the timer
+              notice.hide();
 
               // Cleanup
               win.removeEventListener('click', clickListener, true);

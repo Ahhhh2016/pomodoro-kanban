@@ -36,7 +36,9 @@ export class TimerManager {
   private markdownParsed = false;
   /** track number of state managers parsed */
   private lastParsedSmCount = 0;
-  readonly pomodoroDefault = 25 * 60 * 1000; // 25 minutes
+
+  /** Duration of a pomodoro session, in milliseconds */
+  pomodoroDefault = 25 * 60 * 1000; // default 25 min, can be overridden via settings
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
@@ -48,10 +50,65 @@ export class TimerManager {
       elapsed: 0,
     };
 
+    // Apply initial durations from settings
+    this.updateSettings();
+
     // Obsidian helper that clears when plugin unloads
     this.intervalId = (plugin.registerInterval as any)(
       window.setInterval(() => this.tick(), 1000)
     );
+  }
+
+  /**
+   * Re-read duration-related settings and update internal values.
+   * Should be called whenever plugin.settings changes.
+   */
+  updateSettings() {
+    // Expect plugin.settings to exist and follow KanbanSettings interface
+    const settings: any = (this.plugin as any).settings ?? {};
+
+    const pomodoroMin = Number(settings['timer-pomodoro']);
+    if (!isNaN(pomodoroMin) && pomodoroMin > 0) {
+      this.pomodoroDefault = pomodoroMin * 60 * 1000;
+    } else {
+      this.pomodoroDefault = 25 * 60 * 1000;
+    }
+  }
+
+  /** Get board-local pomodoro minutes for the given card, falling back to global */
+  private resolvePomodoroForCard(cardId?: string): number {
+    if (!cardId) return null;
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    if (!sms) return null;
+    for (const sm of sms.values()) {
+      // quick check if board contains this card id
+      const contains = (board: any): boolean => {
+        if (!board?.children) return false;
+        const stack = [...board.children];
+        while (stack.length) {
+          const node = stack.pop();
+          if (node.id === cardId) return true;
+          if (node.children?.length) stack.push(...node.children);
+        }
+        return false;
+      };
+
+      if (contains(sm.state)) {
+        const val = sm.getSetting?.('timer-pomodoro');
+        if (val !== undefined && val !== null) return Number(val);
+      }
+    }
+    return null;
+  }
+
+  private applyPomodoroForCard(cardId?: string) {
+    const localMin = this.resolvePomodoroForCard(cardId);
+    if (localMin && !isNaN(localMin) && localMin > 0) {
+      this.pomodoroDefault = localMin * 60 * 1000;
+    } else {
+      // fallback to global
+      this.updateSettings();
+    }
   }
 
   private tick() {
@@ -107,6 +164,9 @@ export class TimerManager {
       return;
     }
     
+    // Apply board-local duration if available
+    this.applyPomodoroForCard(cardId);
+
     this.state.mode = mode;
     this.state.targetCardId = cardId;
     this.state.running = true;
@@ -181,6 +241,10 @@ export class TimerManager {
 
       // 切换目标卡片并重置当前 session 起点
       this.state.targetCardId = cardId;
+
+      // Update duration based on new card's board settings
+      this.applyPomodoroForCard(cardId);
+
       this.currentSessionStart = now;
       this.emitter.emit('change');
       return;
