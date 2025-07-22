@@ -496,7 +496,7 @@ export class KanbanView extends TextFileView implements HoverParent {
       key: string,
       icon: string,
       label: string,
-      mode: 'stopwatch' | 'pomodoro'
+      mode: 'stopwatch' | 'pomodoro' | 'break'
     ) => {
       if (!this.actionButtons[key]) {
         // Enhanced behaviour: if no timer is running, prompt user to pick a card and start timing it
@@ -555,18 +555,28 @@ export class KanbanView extends TextFileView implements HoverParent {
       // Build UI: icon + time + arrow
       const isRunning = timerManager.state.running && isCurrentMode;
 
-      let displayTime = isCurrentMode
-        ? (mode === 'pomodoro'
-            ? formatTime(timerManager.getRemaining())
-            : formatTime(timerManager.getElapsed()))
-        : mode === 'pomodoro'
-          ? formatTime(timerManager.pomodoroDefault)
-          : '00:00';
+      let displayTime: string;
+      if (isCurrentMode) {
+        if (mode === 'pomodoro' || mode === 'break') {
+          displayTime = formatTime(timerManager.getRemaining());
+        } else {
+          displayTime = formatTime(timerManager.getElapsed());
+        }
+      } else {
+        if (mode === 'pomodoro') {
+          displayTime = formatTime(timerManager.pomodoroDefault);
+        } else if (mode === 'break') {
+          displayTime = formatTime(timerManager.getBreakDuration());
+        } else {
+          displayTime = '00:00';
+        }
+      }
 
       // Reset content
       btn.innerHTML = '';
 
-      btn.createSpan({ text: `🕰️ ${displayTime}` });
+      const emoji = mode === 'break' ? '☕' : '🕰️';
+      btn.createSpan({ text: `${emoji} ${displayTime}` });
 
       // icon using unicode
       // btn.createSpan({ text: '🕰️ ', cls: 'kanban-plugin__unicode-icon' });
@@ -579,13 +589,14 @@ export class KanbanView extends TextFileView implements HoverParent {
     };
 
     // single global timer button showing current mode
-    const currentMode: 'stopwatch' | 'pomodoro' = timerManager.state.mode;
-    const currentIcon = currentMode === 'pomodoro' ? 'lucide-timer' : 'lucide-clock';
+    const currentMode: 'stopwatch' | 'pomodoro' | 'break' = timerManager.state.mode as any;
+    const currentIcon = currentMode === 'pomodoro' ? 'lucide-timer' : currentMode === 'break' ? 'lucide-coffee' : 'lucide-clock';
     ensureTimerButton('timer-global', currentIcon, 'Timer', currentMode);
 
     const updateButtons = () => {
-      const mode = timerManager.state.mode;
-      ensureTimerButton('timer-global', mode === 'pomodoro' ? 'lucide-timer' : 'lucide-clock', 'Timer', mode);
+      const mode = timerManager.state.mode as any;
+      const icon = mode === 'pomodoro' ? 'lucide-timer' : mode === 'break' ? 'lucide-coffee' : 'lucide-clock';
+      ensureTimerButton('timer-global', icon, 'Timer', mode);
     };
     ['tick','start','stop','change'].forEach((ev) => {
       timerManager.emitter.off(ev, updateButtons);

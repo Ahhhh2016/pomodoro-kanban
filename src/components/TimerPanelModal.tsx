@@ -61,8 +61,11 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
   }, [timer]);
 
   const isPomodoro = timer.state.mode === 'pomodoro';
+  const isBreak = timer.state.mode === 'break';
   const isRunning = timer.state.running;
-  const timeStr = isPomodoro ? formatTime(timer.getRemaining()) : formatTime(timer.getElapsed());
+  const timeStr = (isPomodoro || isBreak)
+    ? formatTime(timer.getRemaining())
+    : formatTime(timer.getElapsed());
 
   // Collect all card IDs belonging to this board so we can filter logs
   const collectIds = (items: any[]): string[] => {
@@ -89,7 +92,7 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
   const totalStr = totalMin >= 60 ? `${Math.floor(totalMin / 60)}h ${totalMin % 60}m` : `${totalMin}m`;
 
   const toggle = () => {
-    timer.toggle(timer.state.mode, timer.state.targetCardId);
+    timer.toggle(timer.state.mode === 'break' ? 'stopwatch' : timer.state.mode, timer.state.targetCardId);
   };
 
   const switchMode = () => {
@@ -102,7 +105,7 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
 
   return (
     <div className="kanban-timer-panel">
-      <h2 style={{ marginTop: 0 }}>{isPomodoro ? 'Pomodoro' : 'Stopwatch'}</h2>
+      <h2 style={{ marginTop: 0 }}>{isPomodoro ? 'Pomodoro' : isBreak ? 'Break' : 'Stopwatch'}</h2>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
         <div style={{ fontSize: '2rem', flexGrow: 1 }}>{timeStr}</div>
         <button onClick={toggle}>{isRunning ? 'Stop' : 'Start'}</button>

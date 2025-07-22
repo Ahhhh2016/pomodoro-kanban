@@ -4,7 +4,7 @@ import moment from 'moment';
 import update from 'immutability-helper';
 import { StopReasonModal } from './components/StopReasonModal';
 
-export type TimerMode = 'stopwatch' | 'pomodoro';
+export type TimerMode = 'stopwatch' | 'pomodoro' | 'break';
 
 interface TimerState {
   running: boolean;
@@ -39,6 +39,19 @@ export class TimerManager {
 
   /** Duration of a pomodoro session, in milliseconds */
   pomodoroDefault = 25 * 60 * 1000; // default 25 min, can be overridden via settings
+  /** Duration of current break session (ms) */
+  private breakDurationMs: number = 5 * 60 * 1000;
+  /** Completed pomodoro count (for long break logic) */
+  private pomodoroCount: number = 0;
+
+  private shortBreakMs: number = 5 * 60 * 1000;
+  private longBreakMs: number = 15 * 60 * 1000;
+  private longBreakInterval: number = 4;
+
+  /** Returns total break duration ms currently active */
+  getBreakDuration() {
+    return this.breakDurationMs;
+  }
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
@@ -97,6 +110,15 @@ export class TimerManager {
     } else {
       this.pomodoroDefault = 25 * 60 * 1000;
     }
+
+    // break durations
+    const shortMin = Number(settings['timer-short-break']);
+    const longMin = Number(settings['timer-long-break']);
+    const interval = Number(settings['timer-long-break-interval']) || 4;
+
+    this.shortBreakMs = !isNaN(shortMin) && shortMin > 0 ? shortMin * 60 * 1000 : 5 * 60 * 1000;
+    this.longBreakMs = !isNaN(longMin) && longMin > 0 ? longMin * 60 * 1000 : 15 * 60 * 1000;
+    this.longBreakInterval = interval;
   }
 
   /** Get board-local pomodoro minutes for the given card, falling back to global */
@@ -143,10 +165,30 @@ export class TimerManager {
       const spent = Date.now() - this.state.start + this.state.elapsed;
       if (spent >= this.pomodoroDefault) {
         // Auto-complete pomodoro without interruption reason panel
-        this.stop(false);
-        new Notice('Pomodoro complete!');
+        this.completePomodoro();
       }
     }
+
+    if (this.state.mode === 'break') {
+      const spent = Date.now() - this.state.start + this.state.elapsed;
+      if (spent >= this.breakDurationMs) {
+        this.stop(false);
+        new Notice('Break over!');
+      }
+    }
+  }
+
+  private completePomodoro() {
+    // finish current pomodoro session
+    this.stop(false);
+    this.pomodoroCount += 1;
+
+    // determine break length
+    const isLong = this.pomodoroCount % this.longBreakInterval === 0;
+    this.breakDurationMs = isLong ? this.longBreakMs : this.shortBreakMs;
+
+    // start break
+    this.start('break', this.state.targetCardId);
   }
 
   reset(mode: TimerMode, cardId?: string) {
@@ -307,11 +349,17 @@ export class TimerManager {
     return Date.now() - this.state.start + this.state.elapsed;
   }
 
-  /** Returns remaining ms for pomodoro, or 0 if stopwatch */
+  /** Returns remaining ms for pomodoro or break; 0 for stopwatch */
   getRemaining() {
-    if (this.state.mode !== 'pomodoro') return 0;
-    const remaining = this.pomodoroDefault - this.getElapsed();
-    return remaining > 0 ? remaining : 0;
+    if (this.state.mode === 'pomodoro') {
+      const remaining = this.pomodoroDefault - this.getElapsed();
+      return remaining > 0 ? remaining : 0;
+    }
+    if (this.state.mode === 'break') {
+      const remaining = this.breakDurationMs - this.getElapsed();
+      return remaining > 0 ? remaining : 0;
+    }
+    return 0;
   }
 
   /** Returns total focused milliseconds for a given card */
