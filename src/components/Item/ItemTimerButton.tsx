@@ -5,7 +5,7 @@ import { KanbanContext } from '../context';
 import { useTimerMenu } from './TimerMenu';
 import { Icon } from '../Icon/Icon';
 import { c } from '../helpers';
-import { EditState, EditingState, Item, isEditing } from '../types';
+import { EditState, Item } from '../types';
 import { TimerManager } from '../../TimerManager';
 import { t } from 'src/lang/helpers';
 
@@ -58,29 +58,17 @@ export const ItemTimerButton = Preact.memo(function ItemTimerButton({
 
   return (
     <div {...ignoreAttr} className={c('item-prefix-button-wrapper')}>
-      {isEditing(editState) ? (
-        <a
-          data-ignore-drag={true}
-          onPointerDown={(e) => e.preventDefault()}
-          onClick={() => setEditState(EditingState.cancel)}
-          className={`${c('item-prefix-button')} is-enabled clickable-icon`}
-          aria-label={t('Cancel')}
-        >
-          <Icon name="lucide-x" />
-        </a>
-      ) : (
-        <a
-          data-ignore-drag={true}
-          onPointerDown={(e) => e.preventDefault()}
-          onClick={onClick as any}
-          className={
-            `${c('item-prefix-button')} clickable-icon` + (isRunning ? ' is-enabled' : '')
-          }
-          aria-label={isRunning ? 'Stop timer' : 'Start timer'}
-        >
-          <Icon name="lucide-clock" />
-        </a>
-      )}
+      <a
+        data-ignore-drag={true}
+        onPointerDown={(e) => e.preventDefault()}
+        onClick={onClick as any}
+        className={
+          `${c('item-prefix-button')} clickable-icon` + (isRunning ? ' is-enabled' : '')
+        }
+        aria-label={isRunning ? 'Stop timer' : 'Start timer'}
+      >
+        <Icon name="lucide-clock" />
+      </a>
     </div>
   );
 }); 
