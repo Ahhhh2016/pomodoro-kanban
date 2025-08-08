@@ -277,7 +277,7 @@ export class TimerManager {
   start(mode: TimerMode, cardId?: string) {
     // Prevent starting a timer without a target card
     if (!cardId) {
-      new Notice('Please select a card before starting the timer');
+      new Notice('Select a card to start working');
       return;
     }
 

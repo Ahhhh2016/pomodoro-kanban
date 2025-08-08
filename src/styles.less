@@ -2008,3 +2008,15 @@ body:not(.native-scrollbars) .kanban-plugin__scroll-container::-webkit-scrollbar
     color: var(--text-muted);
   }
 }
+
+/* Ensure timer panel buttons are above any overlays and primary is solid even under theme overrides */
+.kanban-timer-panel .kanban-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.kanban-timer-panel .kanban-btn--primary {
+  background: var(--interactive-accent) !important;
+  border-color: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+}
