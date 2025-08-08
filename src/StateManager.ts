@@ -3,7 +3,7 @@ import { App, TFile, moment } from 'obsidian';
 import { useEffect, useState } from 'preact/compat';
 
 import { KanbanView } from './KanbanView';
-import { KanbanSettings, SettingRetrievers } from './Settings';
+import { KanbanSettings, SettingRetrievers, DEFAULT_INTERRUPT_REASONS } from './Settings';
 import { getDefaultDateFormat, getDefaultTimeFormat } from './components/helpers';
 import { Board, BoardTemplate, Item } from './components/types';
 import { ListFormat } from './parsers/List';
@@ -258,6 +258,16 @@ export class StateManager {
       'tag-sort': this.getSettingRaw('tag-sort', suppliedSettings) ?? [],
       'date-colors': this.getSettingRaw('date-colors', suppliedSettings) ?? [],
       'tag-action': this.getSettingRaw('tag-action', suppliedSettings) ?? 'obsidian',
+      // Timer settings
+      'timer-pomodoro': this.getSettingRaw('timer-pomodoro', suppliedSettings),
+      'timer-short-break': this.getSettingRaw('timer-short-break', suppliedSettings),
+      'timer-long-break': this.getSettingRaw('timer-long-break', suppliedSettings),
+      'timer-long-break-interval': this.getSettingRaw('timer-long-break-interval', suppliedSettings),
+      'timer-interrupts': (this.getSettingRaw('timer-interrupts', suppliedSettings) as string[])?.length > 0 
+        ? this.getSettingRaw('timer-interrupts', suppliedSettings) 
+        : DEFAULT_INTERRUPT_REASONS,
+      'timer-enable-sounds': this.getSettingRaw('timer-enable-sounds', suppliedSettings),
+      'timer-sound-file': this.getSettingRaw('timer-sound-file', suppliedSettings),
     };
   }
 

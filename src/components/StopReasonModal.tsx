@@ -1,6 +1,7 @@
 import { h, Fragment } from 'preact';
 import { Modal, Setting } from 'obsidian';
 import { render } from 'preact';
+import { DEFAULT_INTERRUPT_REASONS } from '../Settings';
 
 interface StopReasonProps {
   reasons: string[];
@@ -101,17 +102,6 @@ export class StopReasonModal extends Modal {
   /** Flag to indicate whether a reason was selected before closing */
   private _reasonSelected: boolean = false;
 
-  private static DEFAULT_REASONS = [
-    'Boss interrupted',
-    'Colleague interrupted',
-    'Email',
-    'Going home',
-    'Lunch',
-    'Phone call',
-    'Web browsing',
-    'Task done',
-  ];
-
   // 本地 reasons 列表
   private _reasons: string[] = [];
 
@@ -124,7 +114,7 @@ export class StopReasonModal extends Modal {
     this._reasons = this.getReasons();
   }
 
-  /** Get combined list of default + user-defined reasons */
+  /** Get reasons from settings */
   private getReasons(): string[] {
     // 优先使用stateManager的getSetting方法，这样可以正确处理本地和全局设置的层级关系
     let userReasons: string[] = [];
@@ -137,10 +127,12 @@ export class StopReasonModal extends Modal {
       userReasons = (this.plugin.settings?.['timer-interrupts'] as string[]) || [];
     }
     
-    const combined = Array.from(
-      new Set([...StopReasonModal.DEFAULT_REASONS, ...userReasons])
-    );
-    return combined;
+    // 确保至少有默认值 - 检查数组是否为空
+    if (!userReasons || userReasons.length === 0) {
+      userReasons = [...DEFAULT_INTERRUPT_REASONS];
+    }
+    
+    return userReasons;
   }
 
   /** Prompt user for a new reason, save to settings, and return it */
@@ -156,6 +148,11 @@ export class StopReasonModal extends Modal {
           } else {
             // 回退到全局设置
             list = (this.plugin.settings['timer-interrupts'] as string[]) || [];
+          }
+          
+          // 如果列表为空，使用默认值
+          if (!list || list.length === 0) {
+            list = [...DEFAULT_INTERRUPT_REASONS];
           }
           
           if (!list.includes(val)) {

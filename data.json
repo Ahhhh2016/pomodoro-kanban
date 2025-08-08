@@ -31,8 +31,13 @@
   "timer-pomodoro": 18,
   "show-checkboxes": false,
   "timer-interrupts": [
-    "rest",
-    "dinner",
-    "play"
+    "Boss interrupted",
+    "Colleague interrupted",
+    "Email",
+    "Going home",
+    "Lunch",
+    "Phone call",
+    "Web browsing",
+    "Task done"
   ]
 }

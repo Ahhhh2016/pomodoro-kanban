@@ -13,7 +13,7 @@ import { render, unmountComponentAtNode, useEffect, useState } from 'preact/comp
 
 import { createApp } from './DragDropApp';
 import { KanbanView, kanbanIcon, kanbanViewType } from './KanbanView';
-import { KanbanSettings, KanbanSettingsTab } from './Settings';
+import { KanbanSettings, KanbanSettingsTab, DEFAULT_INTERRUPT_REASONS } from './Settings';
 import { StateManager } from './StateManager';
 import { DateSuggest, TimeSuggest } from './components/Editor/suggest';
 import { getParentWindow } from './dnd/util/getWindow';
@@ -66,6 +66,12 @@ export default class KanbanPlugin extends Plugin {
 
   async loadSettings() {
     this.settings = Object.assign({}, await this.loadData());
+    
+    // Ensure default interrupt reasons are set if not already present or empty
+    if (!this.settings['timer-interrupts'] || this.settings['timer-interrupts'].length === 0) {
+      this.settings['timer-interrupts'] = [...DEFAULT_INTERRUPT_REASONS];
+      await this.saveSettings();
+    }
   }
 
   async saveSettings() {

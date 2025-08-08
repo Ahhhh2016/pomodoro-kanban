@@ -49,6 +49,18 @@ import { renderInterruptReasonSettings, cleanUpInterruptReasonSettings } from '.
 
 const numberRegEx = /^\d+(?:\.\d+)?$/;
 
+// Default interrupt reasons
+export const DEFAULT_INTERRUPT_REASONS = [
+  'Boss interrupted',
+  'Colleague interrupted',
+  'Email',
+  'Going home',
+  'Lunch',
+  'Phone call',
+  'Web browsing',
+  'Task done',
+];
+
 export type KanbanFormat = 'basic' | 'board' | 'table' | 'list';
 
 export interface KanbanSettings {
@@ -564,9 +576,9 @@ export class SettingsManager {
       });
 
     new Setting(contentEl).then((setting) => {
-      const [value, globalValue] = this.getSetting('tag-sort', local);
+      const [value] = this.getSetting('tag-sort', local);
 
-      const keys: TagSortSetting[] = ((value || globalValue || []) as TagSort[]).map((k) => {
+      const keys: TagSortSetting[] = ((value || []) as TagSort[]).map((k) => {
         return {
           ...TagSortSettingTemplate,
           id: generateInstanceId(),
@@ -1627,9 +1639,13 @@ export class SettingsManager {
     contentEl.createEl('h4', { text: 'Interrupt Reasons' });
 
     new Setting(contentEl).then((setting) => {
-      const [value] = this.getSetting('timer-interrupts', local);
+      const [value, globalValue] = this.getSetting('timer-interrupts', local);
 
-      const reasons: string[] = (value || []) as string[];
+      // 检查是否有有效的用户设置，如果没有则使用默认值
+      const userReasons = (value || globalValue) as string[];
+      const reasons: string[] = userReasons && userReasons.length > 0 
+        ? userReasons 
+        : DEFAULT_INTERRUPT_REASONS;
 
       renderInterruptReasonSettings(setting.settingEl, contentEl, reasons, (items: string[]) => {
         this.applySettingsUpdate({
@@ -1641,8 +1657,8 @@ export class SettingsManager {
         if (setting.settingEl) {
           cleanUpInterruptReasonSettings(setting.settingEl);
         }
-          });
       });
+    });
 
     /* Sounds */
     contentEl.createEl('h4', { text: 'Sounds' });
