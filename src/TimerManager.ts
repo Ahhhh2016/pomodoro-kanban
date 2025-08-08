@@ -382,9 +382,8 @@ export class TimerManager {
       // 切换目标卡片并重置当前 session 起点
       this.state.targetCardId = cardId;
 
-      // Update duration based on new card's board settings
-      this.applyPomodoroForCard(cardId);
-
+      // Keep current session timing and target duration unchanged when switching cards
+      // Do NOT adjust pomodoro/break durations on switch; only apply on start()
       this.currentSessionStart = now;
       this.emitter.emit('change');
       return;
