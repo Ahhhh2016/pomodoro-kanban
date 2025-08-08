@@ -29,5 +29,10 @@
     }
   ],
   "timer-pomodoro": 18,
-  "show-checkboxes": false
+  "show-checkboxes": false,
+  "timer-interrupts": [
+    "rest",
+    "dinner",
+    "play"
+  ]
 }

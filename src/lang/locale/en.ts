@@ -274,6 +274,12 @@ const en = {
 
   // components/Editor/MarkdownEditor.tsx
   Submit: 'Submit',
+
+  // InterruptReasonSettings.tsx
+  'Interrupt reasons': 'Interrupt reasons',
+  'Customize the reasons shown when stopping the timer.': 'Customize the reasons shown when stopping the timer.',
+  'Reason': 'Reason',
+  'Add': 'Add',
 };
 
 export type Lang = typeof en;

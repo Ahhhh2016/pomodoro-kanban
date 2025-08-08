@@ -45,6 +45,7 @@ import { cleanUpDateSettings, renderDateSettings } from './settings/DateColorSet
 import { cleanupMetadataSettings, renderMetadataSettings } from './settings/MetadataSettings';
 import { cleanUpTagSettings, renderTagSettings } from './settings/TagColorSettings';
 import { cleanUpTagSortSettings, renderTagSortSettings } from './settings/TagSortSettings';
+import { renderInterruptReasonSettings, cleanUpInterruptReasonSettings } from './settings/InterruptReasonSettings';
 
 const numberRegEx = /^\d+(?:\.\d+)?$/;
 
@@ -1625,44 +1626,21 @@ export class SettingsManager {
     /* Interrupt reasons */
     contentEl.createEl('h4', { text: 'Interrupt Reasons' });
 
-    new Setting(contentEl)
-      .setName('Reasons (comma separated)')
-      .then((setting) => {
-        let inputComponent: TextComponent;
+    new Setting(contentEl).then((setting) => {
+      const [value] = this.getSetting('timer-interrupts', local);
 
-        setting
-          .addText((text) => {
-            inputComponent = text;
+      const reasons: string[] = (value || []) as string[];
 
-            const [value, globalValue] = this.getSetting('timer-interrupts', local);
+      renderInterruptReasonSettings(setting.settingEl, contentEl, reasons, (items: string[]) => {
+        this.applySettingsUpdate({
+          'timer-interrupts': { $set: items },
+        });
+      });
 
-            const currentArray = (
-              (value as string[]) || (globalValue as string[]) || []
-            ) as string[];
-            text.setValue(currentArray.join(', '));
-
-            text.onChange((val) => {
-              const arr = val
-                .split(',')
-                .map((s) => s.trim())
-                .filter(Boolean);
-              this.applySettingsUpdate({
-                'timer-interrupts': { $set: arr },
-              });
-            });
-          })
-          .addExtraButton((b) => {
-            b.setIcon('lucide-rotate-ccw')
-              .setTooltip('Reset to default')
-              .onClick(() => {
-                const [, globalValue] = this.getSetting('timer-interrupts', local);
-                const resetVal = ((globalValue as string[]) || []).join(', ');
-                inputComponent.setValue(resetVal);
-
-                this.applySettingsUpdate({
-                  $unset: ['timer-interrupts'],
-                });
-              });
+      this.cleanupFns.push(() => {
+        if (setting.settingEl) {
+          cleanUpInterruptReasonSettings(setting.settingEl);
+        }
           });
       });
 

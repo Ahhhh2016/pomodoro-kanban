@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3';
-import { Notice, Plugin } from 'obsidian';
+import { Notice, Plugin, TFile } from 'obsidian';
 import moment from 'moment';
 import update from 'immutability-helper';
 import { StopReasonModal } from './components/StopReasonModal';
@@ -73,6 +73,59 @@ export class TimerManager {
     this.intervalId = (plugin.registerInterval as any)(
       window.setInterval(() => this.tick(), 1000)
     );
+  }
+
+  /**
+   * Play end-of-session sound if enabled in settings.
+   * Uses user-provided audio file path if available, otherwise falls back to a simple beep generated via Web Audio API.
+   */
+  private playEndSound() {
+    const settings: any = (this.plugin as any).settings ?? {};
+    if (!settings['timer-enable-sounds']) return;
+
+    const path: string | undefined = settings['timer-sound-file']?.trim?.();
+    let src: string | null = null;
+
+    if (path) {
+      try {
+        const file = this.plugin.app.vault.getAbstractFileByPath(path);
+        if (file) {
+          src = this.plugin.app.vault.getResourcePath(file as TFile);
+        }
+      } catch (err) {
+        console.error('Unable to resolve audio file path', err);
+      }
+    }
+
+    if (src) {
+      try {
+        const audio = new Audio(src);
+        audio.volume = 1.0;
+        audio.play().catch(() => {/* ignore autoplay restrictions */});
+        return;
+      } catch (err) {
+        console.error('Failed to play custom audio', err);
+      }
+    }
+
+    // Fallback: generate a short beep using Web Audio API
+    try {
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 1000; // 1kHz beep
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      gain.gain.setValueAtTime(1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
+      oscillator.stop(ctx.currentTime + 1);
+    } catch (err) {
+      console.error('Failed to play fallback beep', err);
+    }
   }
 
   /** Attach listeners to each board's settings notifier so local duration changes apply immediately */
@@ -174,6 +227,7 @@ export class TimerManager {
       if (spent >= this.breakDurationMs) {
         this.stop(false);
         new Notice('Break over!');
+        this.playEndSound();
       }
     }
   }
@@ -181,6 +235,7 @@ export class TimerManager {
   private completePomodoro() {
     // finish current pomodoro session
     this.stop(false);
+    this.playEndSound();
     this.pomodoroCount += 1;
 
     // determine break length
@@ -283,8 +338,9 @@ export class TimerManager {
     }
 
     // Show stop reason modal for interruptions
+    const stateManager = this.getStateManagerForCard(this.state.targetCardId);
     new StopReasonModal(
-      this.plugin.app,
+      this.plugin,
       (reason: string) => {
         // User selected reason, finalize
         this.emitter.emit('stop');
@@ -294,7 +350,8 @@ export class TimerManager {
       () => {
         // Resume timer if modal closed without selecting a reason
         this.resumeTimer();
-      }
+      },
+      stateManager
     ).open();
   }
 
@@ -452,6 +509,22 @@ export class TimerManager {
       for (const lane of board.children) {
         const item = this.findItemInLane(lane, cardId);
         if (item) return item.data?.title;
+      }
+    }
+    return undefined;
+  }
+
+  /** Get the stateManager for a given card */
+  private getStateManagerForCard(cardId?: string): any | undefined {
+    if (!cardId) return undefined;
+    if (!(this.plugin as any).stateManagers) return undefined;
+    const sms: Map<any, any> = (this.plugin as any).stateManagers;
+    for (const sm of sms.values()) {
+      const board = sm.state;
+      if (!board?.children) continue;
+      for (const lane of board.children) {
+        const item = this.findItemInLane(lane, cardId);
+        if (item) return sm;
       }
     }
     return undefined;

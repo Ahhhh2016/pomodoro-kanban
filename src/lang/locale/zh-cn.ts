@@ -191,6 +191,12 @@ const lang: Partial<Lang> = {
 
   // components/Editor/MarkdownEditor.tsx
   Submit: '提交',
+
+  // InterruptReasonSettings.tsx
+  'Interrupt reasons': '中断原因',
+  'Customize the reasons shown when stopping the timer.': '自定义停止计时器时显示的原因。',
+  'Reason': '原因',
+  'Add': '添加',
 };
 
 export default lang;
