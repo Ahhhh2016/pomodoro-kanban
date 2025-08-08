@@ -34,9 +34,9 @@ function SessionBlock({ session }: SessionBlockProps) {
   return (
     <div className="kanban-timer-session-block">
       {/* 第一行：标题 */}
-      <div>{displayTitle}</div>
+      <div className="kanban-timer-session-block__title">{displayTitle}</div>
       {/* 第二行：日期 + 时间范围 */}
-      <em>
+      <em className="kanban-timer-session-block__range">
         {startStr} – {endStr}
       </em>
     </div>
@@ -78,9 +78,21 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
     return ids;
   };
 
-  const boardCardIds: Set<string> = new Set(
-    collectIds(boardStateManager?.state?.children ?? [])
-  );
+  // Find title by card id within this board's state
+  const findTitleById = (items: any[], cardId?: string): string | undefined => {
+    if (!cardId || !items) return undefined;
+    for (const it of items) {
+      if (it?.id === cardId) return it?.data?.title;
+      if (it?.children?.length) {
+        const sub = findTitleById(it.children, cardId);
+        if (sub) return sub;
+      }
+    }
+    return undefined;
+  };
+
+  const boardTree = boardStateManager?.state?.children ?? [];
+  const boardCardIds: Set<string> = new Set(collectIds(boardTree));
 
   // Ensure markdown logs are loaded and get today's logs, then filter by board
   const todayLogs = timer
@@ -103,41 +115,45 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
     timer.reset(newMode, timer.state.targetCardId);
   };
 
+  const targetCardId = timer.state.targetCardId;
+  const rawTargetTitle = findTitleById(boardTree, targetCardId) ?? targetCardId ?? '';
+  const targetTitle = rawTargetTitle
+    ? rawTargetTitle.split('\n')[0].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim()
+    : '';
+
   return (
     <div className="kanban-timer-panel">
-      <h2 style={{ marginTop: 0 }}>{isPomodoro ? 'Pomodoro' : isBreak ? 'Break' : 'Stopwatch'}</h2>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ fontSize: '2rem', flexGrow: 1 }}>{timeStr}</div>
-        <button onClick={toggle}>{isRunning ? 'Stop' : 'Start'}</button>
+      <h2 className="kanban-timer-panel__title">{isPomodoro ? 'Pomodoro' : isBreak ? 'Break' : 'Stopwatch'}</h2>
+
+      <div className="kanban-timer-panel__time-row">
+        <div className="kanban-timer-panel__time-digits">{timeStr}</div>
+        <button className={`kanban-btn kanban-btn--primary`} onClick={toggle}>{isRunning ? 'Stop' : 'Start'}</button>
       </div>
 
+      {targetTitle && (
+        <div className="kanban-timer-panel__current" title={targetTitle}>
+          <span className="kanban-timer-panel__current-label">当前卡片</span>
+          <span className="kanban-timer-panel__current-pill">{targetTitle}</span>
+        </div>
+      )}
+
       {/* Logs header */}
-      <div style={{ marginTop: '16px', fontWeight: 'bold' }}>
-        TODAY&nbsp;&nbsp; {totalStr} &nbsp;&nbsp; {pomodoroCount} Pomodoro{pomodoroCount !== 1 ? 's' : ''}
+      <div className="kanban-timer-panel__summary">
+        <span>TODAY</span>
+        <span className="kanban-timer-panel__pill">{totalStr}</span>
+        <span className="kanban-timer-panel__pill">{pomodoroCount} Pomodoro{pomodoroCount !== 1 ? 's' : ''}</span>
       </div>
 
       {/* Session blocks */}
-      <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '40vh', overflowY: 'auto' }}>
+      <div className="kanban-timer-panel__sessions">
         {todayLogs.map((s) => (
           <SessionBlock key={s.start} session={s} />
         ))}
       </div>
 
-      <div style={{ marginTop: '8px', fontStyle: 'italic' }}>
-        {timer.state.targetCardId ? `Card: ${timer.state.targetCardId}` : 'No card'}
-      </div>
-      <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-        <button onClick={switchMode}>Switch Mode</button>
-        <button
-          onClick={() => {
-            new Notice('Open settings in sidebar');
-            (window as any).app.setting.openTabById('pomodoro-kanban');
-            onClose();
-          }}
-        >
-          Settings
-        </button>
-      </div>
+      {/* removed target info at bottom; moved above */}
+
+      {/* removed bottom action buttons as requested */}
     </div>
   );
 }
