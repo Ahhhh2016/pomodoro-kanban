@@ -80,14 +80,32 @@ export class TimerManager {
    * Uses user-provided audio file path if available, otherwise falls back to a simple beep generated via Web Audio API.
    */
   private playEndSound() {
-    const settings: any = (this.plugin as any).settings ?? {};
-    if (!settings['timer-enable-sounds']) return;
+    const globalSettings: any = (this.plugin as any).settings ?? {};
 
-    const volumePercentRaw: number | undefined = settings['timer-sound-volume'];
+    // Prefer board-level settings (for the card's board) over global settings
+    const sm = this.getStateManagerForCard(this.state.targetCardId);
+    const getLocal = <T = any>(key: string): T | undefined => {
+      try {
+        return sm?.getSetting?.(key as any) as T;
+      } catch {
+        return undefined;
+      }
+    };
+
+    const enabledLocal = getLocal<boolean>('timer-enable-sounds');
+    const enabled = (enabledLocal !== undefined ? enabledLocal : (globalSettings['timer-enable-sounds'] as boolean)) ?? false;
+    if (!enabled) return;
+
+    const volLocal = getLocal<number>('timer-sound-volume');
+    const volumePercentRaw: number | undefined = typeof volLocal === 'number' ? volLocal : (globalSettings['timer-sound-volume'] as number | undefined);
     const volumePercent = typeof volumePercentRaw === 'number' ? volumePercentRaw : 100;
     const volume = Math.max(0, Math.min(1, (volumePercent || 0) / 100));
 
-    const path: string | undefined = settings['timer-sound-file']?.trim?.();
+    const localPathRaw = getLocal<string>('timer-sound-file');
+    const localPath = (typeof localPathRaw === 'string' ? localPathRaw : '').trim();
+    const globalPath = (globalSettings['timer-sound-file'] as string | undefined)?.trim?.();
+    const path: string | undefined = localPath || globalPath;
+
     let src: string | null = null;
 
     if (path) {
