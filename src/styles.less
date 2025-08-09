@@ -1833,6 +1833,13 @@ body:not(.native-scrollbars) .kanban-plugin__scroll-container::-webkit-scrollbar
   opacity: 0.6; // 60% opacity
 }
 
+// Focused time footer
+.kanban-plugin__item-focus-time {
+  border-top: 1px dashed var(--background-modifier-border);
+  padding-block-start: 3px; // space between the dashed line and the text
+  padding-block-end: 3px;
+}
+
 /* Timer Panel (Modal) */
 .kanban-timer-panel {
   display: flex;
