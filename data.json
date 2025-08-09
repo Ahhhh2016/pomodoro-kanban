@@ -39,5 +39,6 @@
     "Phone call",
     "Web browsing",
     "Task done"
-  ]
+  ],
+  "timer-enable-sounds": true
 }

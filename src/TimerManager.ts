@@ -83,6 +83,10 @@ export class TimerManager {
     const settings: any = (this.plugin as any).settings ?? {};
     if (!settings['timer-enable-sounds']) return;
 
+    const volumePercentRaw: number | undefined = settings['timer-sound-volume'];
+    const volumePercent = typeof volumePercentRaw === 'number' ? volumePercentRaw : 100;
+    const volume = Math.max(0, Math.min(1, (volumePercent || 0) / 100));
+
     const path: string | undefined = settings['timer-sound-file']?.trim?.();
     let src: string | null = null;
 
@@ -97,14 +101,27 @@ export class TimerManager {
       }
     }
 
+    // Fallback to built-in asset inside this vault's plugin folder
+    if (!src) {
+      try {
+        const pluginAssetPath = '.obsidian/plugins/pomodoro-kanban/assets/sound.wav';
+        const file = this.plugin.app.vault.getAbstractFileByPath(pluginAssetPath);
+        if (file) {
+          src = this.plugin.app.vault.getResourcePath(file as TFile);
+        }
+      } catch (err) {
+        console.error('Unable to resolve built-in sound asset', err);
+      }
+    }
+
     if (src) {
       try {
         const audio = new Audio(src);
-        audio.volume = 1.0;
+        audio.volume = volume;
         audio.play().catch(() => {/* ignore autoplay restrictions */});
         return;
       } catch (err) {
-        console.error('Failed to play custom audio', err);
+        console.error('Failed to play custom/built-in audio', err);
       }
     }
 
@@ -120,7 +137,7 @@ export class TimerManager {
       oscillator.connect(gain);
       gain.connect(ctx.destination);
       oscillator.start();
-      gain.gain.setValueAtTime(1, ctx.currentTime);
+      gain.gain.setValueAtTime(volume, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1);
       oscillator.stop(ctx.currentTime + 1);
     } catch (err) {

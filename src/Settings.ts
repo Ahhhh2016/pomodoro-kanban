@@ -120,6 +120,8 @@ export interface KanbanSettings {
   'timer-enable-sounds'?: boolean;
   /** Audio file path (in vault) for end-of-session sound */
   'timer-sound-file'?: string;
+  /** Volume percentage (0-100) for sounds */
+  'timer-sound-volume'?: number;
 }
 
 export interface KanbanViewSettings {
@@ -176,6 +178,7 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'timer-interrupts',
   'timer-enable-sounds',
   'timer-sound-file',
+  'timer-sound-volume',
 ]);
 
 export type SettingRetriever = <K extends keyof KanbanSettings>(
@@ -1695,7 +1698,7 @@ export class SettingsManager {
 
     new Setting(contentEl)
       .setName('Sound file path')
-      .setDesc('Relative path in vault to play when a session ends')
+      .setDesc('Relative path in vault to play when a session ends. If empty, a built-in sound is used.')
       .then((setting) => {
         let inputComponent: TextComponent;
 
@@ -1724,6 +1727,49 @@ export class SettingsManager {
                 });
               });
           });
+      });
+
+    new Setting(contentEl)
+      .setName('Sound volume')
+      .setDesc('Volume for end-of-session sound (0-100).')
+      .then((setting) => {
+        const container = setting.settingEl.createDiv({ cls: 'kanban-sound-volume' });
+        const label = container.createSpan({ text: 'Volume:' });
+        label.style.marginRight = '8px';
+
+        const input = container.createEl('input', { type: 'range' });
+        input.min = '0';
+        input.max = '100';
+        input.step = '1';
+
+        const [value, globalValue] = this.getSetting('timer-sound-volume', local);
+        const initial = (typeof value === 'number' ? value : (typeof globalValue === 'number' ? globalValue : 100)) as number;
+        input.value = String(initial);
+
+        const valueText = container.createSpan({ text: ` ${initial}` });
+
+        input.oninput = () => {
+          const v = Number(input.value);
+          valueText.setText(` ${v}`);
+          if (!numberRegEx.test(String(v))) return;
+          this.applySettingsUpdate({
+            'timer-sound-volume': { $set: v },
+          });
+        };
+
+        setting.addExtraButton((b) => {
+          b.setIcon('lucide-rotate-ccw')
+            .setTooltip('Reset to default')
+            .onClick(() => {
+              const [, globalValue2] = this.getSetting('timer-sound-volume', local);
+              const resetTo = (typeof globalValue2 === 'number' ? globalValue2 : 100) as number;
+              input.value = String(resetTo);
+              valueText.setText(` ${resetTo}`);
+              this.applySettingsUpdate({
+                $unset: ['timer-sound-volume'],
+              });
+            });
+        });
       });
   }
 
