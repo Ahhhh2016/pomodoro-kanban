@@ -380,7 +380,7 @@ export class SettingsManager {
         const [value, globalValue] = this.getSetting('lane-width', local);
 
         text.inputEl.setAttr('type', 'number');
-        text.inputEl.placeholder = `${globalValue ? globalValue : '272'} (default)`;
+        text.inputEl.placeholder = `${globalValue ? globalValue : '310'} (default)`;
         text.inputEl.value = value ? value.toString() : '';
 
         text.onChange((val) => {
