@@ -371,7 +371,7 @@ export class TimerManager {
       // Auto-start next pomodoro on the same card
       setTimeout(() => {
         this.start('pomodoro', this.lastWorkCardId);
-        new Notice(`Auto-starting round ${this.currentAutoRound + 1}/${this.autoRounds}`);
+        new Notice(`Auto-starting pomodoro ${this.currentAutoRound + 1}/${this.autoRounds}`);
       }, 1000); // Small delay to let the break end notice show
     } else if (this.autoRounds > 0 && this.currentAutoRound >= this.autoRounds) {
       // Reset auto round counter when we've completed all rounds
@@ -380,7 +380,7 @@ export class TimerManager {
     }
   }
 
-  reset(mode: TimerMode, cardId?: string) {
+  reset(mode: TimerMode, cardId?: string, resetAutoRound: boolean = true) {
     const wasRunning = this.state.running;
     this.state = {
       running: false,
@@ -390,8 +390,10 @@ export class TimerManager {
       targetCardId: cardId,
     };
     
-    // Reset auto round counter when manually resetting
-    this.currentAutoRound = 0;
+    // Reset auto round counter when manually resetting or when explicitly requested
+    if (resetAutoRound) {
+      this.currentAutoRound = 0;
+    }
    
     this.emitter.emit('change');
   }
@@ -432,8 +434,8 @@ export class TimerManager {
       this.lastWorkCardId = cardId;
     }
 
-    // Reset auto round counter when manually starting a new pomodoro
-    if (mode === 'pomodoro' && this.currentAutoRound === 0) {
+    // Reset auto round counter when manually starting a new pomodoro (only if not in auto mode)
+    if (mode === 'pomodoro' && this.currentAutoRound === 0 && this.autoRounds === 0) {
       this.currentAutoRound = 0; // This will be incremented in completePomodoro
     }
 
@@ -460,9 +462,28 @@ export class TimerManager {
     const targetMode = this.lastWorkMode;
     const targetCardId = this.lastWorkCardId;
     
-    this.reset(targetMode, targetCardId);
+    // Don't reset auto round counter when skipping break in auto mode
+    const shouldResetAutoRound = this.autoRounds === 0;
+    this.reset(targetMode, targetCardId, shouldResetAutoRound);
     this.emitter.emit('change');
     new Notice('Break skipped');
+    
+    // Check if we should auto-start next pomodoro or show completion message
+    if (this.autoRounds > 0) {
+      if (this.currentAutoRound < this.autoRounds) {
+        // More rounds to go, auto-start next pomodoro
+        setTimeout(() => {
+          this.start('pomodoro', targetCardId);
+          new Notice(`Auto-starting pomodoro ${this.currentAutoRound + 1}/${this.autoRounds}`);
+        }, 1000); // Small delay to let the skip notice show
+      } else {
+        // All rounds completed, show congratulations message
+        setTimeout(() => {
+          this.currentAutoRound = 0;
+          new Notice(`🎉 恭喜！你完成了 ${this.autoRounds} 轮番茄钟工作法！继续保持专注！`);
+        }, 1000); // Small delay to let the skip notice show
+      }
+    }
   }
 
   /**
@@ -480,7 +501,9 @@ export class TimerManager {
     // If running for less than 1 minute, stop without asking for reason and don't log
     if (runningDuration < oneMinuteInMs) {
       this.stopTimer();
-      this.reset(this.state.mode, this.state.targetCardId);
+      // Don't reset auto round counter for short sessions in auto mode
+      const shouldResetAutoRound = this.autoRounds === 0;
+      this.reset(this.state.mode, this.state.targetCardId, shouldResetAutoRound);
       this.emitter.emit('change');
       new Notice('Sessions shorter than 1 minute are not recorded.');
       return;
@@ -508,7 +531,9 @@ export class TimerManager {
       );
       this.emitter.emit('log');
 
-      this.reset(this.state.mode, this.state.targetCardId);
+      // Don't reset auto round counter when finalizing sessions in auto mode
+      const shouldResetAutoRound = this.autoRounds === 0;
+      this.reset(this.state.mode, this.state.targetCardId, shouldResetAutoRound);
       this.emitter.emit('change');
     };
 
@@ -718,7 +743,7 @@ export class TimerManager {
   /** Append session bullet under the corresponding card in markdown and update board */
   private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
     if (!cardId) return;
-    const line = `++ ${moment(start).format('YYYY-MM-DD')} ${moment(start).format('HH:mm')}} – {${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
+    const line = `++ ${moment(start).format('YYYY-MM-DD')} ${moment(start).format('HH:mm')} – ${moment(end).format('HH:mm')} (${Math.round(duration / 60000)} m)`;
     for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
       const board = sm.state;
       const updated = this.appendToBoard(sm, board, cardId, line);
