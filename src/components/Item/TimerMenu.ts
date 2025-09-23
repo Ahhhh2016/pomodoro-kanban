@@ -1,8 +1,18 @@
 import { Menu } from 'obsidian';
 import { Item } from '../types';
 import { TimerManager } from '../../TimerManager';
+import { constructDatePicker, constructMenuDueDatePickerOnChange } from './helpers';
+import { StateManager } from '../../StateManager';
+import { BoardModifiers } from '../../helpers/boardModifiers';
+import { Path } from '../../dnd/types';
 
-export function useTimerMenu(item: Item, timerManager: TimerManager) {
+export function useTimerMenu(
+  item: Item, 
+  timerManager: TimerManager, 
+  stateManager: StateManager, 
+  boardModifiers: BoardModifiers, 
+  path: Path
+) {
   return (e: MouseEvent) => {
     const menu = new Menu();
 
@@ -59,6 +69,26 @@ export function useTimerMenu(item: Item, timerManager: TimerManager) {
           .setIcon('lucide-clock')
           .setTitle(isStopwatchRunning ? '停止秒表' : '开始秒表')
           .onClick(() => timerManager.toggle('stopwatch', item.id))
+      )
+      .addItem((mi) =>
+        mi
+          .setIcon('lucide-calendar')
+          .setTitle('添加截止日期')
+          .onClick(() => {
+            constructDatePicker(
+              e.view,
+              stateManager,
+              { x: e.clientX, y: e.clientY },
+              constructMenuDueDatePickerOnChange({
+                stateManager,
+                boardModifiers,
+                item,
+                hasDueDate: !!item.data.metadata.duedate,
+                path,
+              }),
+              item.data.metadata.duedate?.toDate()
+            );
+          })
       );
 
     menu.showAtMouseEvent(e);

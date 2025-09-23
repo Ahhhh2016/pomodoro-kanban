@@ -21,6 +21,7 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
 - **Timelog Display Control**: Option to hide timelog entries in card view while keeping them visible in markdown view
+- **Due Date Management**: Set due dates for tasks with visual indicators (red, bold text) displayed at the bottom right of cards
 
 ## Auto Pomodoro Rounds Feature
 
@@ -119,6 +120,33 @@ The current break time logic follows a simple but effective pattern:
 - **Session Logging**: All sessions longer than 1 minute are automatically logged to the card's markdown
 - **Interrupt Reasons**: For longer sessions, you can specify why you stopped (interruption, task complete, etc.)
 - **Card Switching**: Switch between cards while maintaining timer state
+
+## Due Date Management
+
+The plugin now includes comprehensive due date functionality to help you track task deadlines:
+
+### Features
+- **Easy Due Date Setting**: Access due date picker through the timer menu (right-click on timer button)
+- **Visual Indicators**: Due dates are displayed in red, bold text at the bottom right of cards
+- **Flexible Format**: Supports both regular date format and daily note linking
+- **Click to Edit**: Click on any due date to modify or remove it
+- **Markdown Integration**: Due dates are stored as `due:@2024-01-15` format in the card markdown
+
+### How to Use
+1. **Set Due Date**: Right-click on the timer button of any card and select "添加截止日期" (Add Due Date)
+2. **Date Picker**: Choose your desired due date from the calendar popup
+3. **Time Picker**: After selecting the date, a time picker will automatically appear to set the specific time
+4. **Visual Display**: The due date and time will appear in red, bold text at the bottom right of the card
+5. **Edit Due Date**: Click on the displayed due date to modify both date and time
+6. **Remove Due Date**: Use the date picker to clear the due date
+
+### Markdown Format
+Due dates and times are stored in the card's markdown content using the format:
+- `due:@2024-01-15` for dates only
+- `due:@2024-01-15 due:@14:30` for dates with specific times
+- `due:@[[2024-01-15]]` for daily note links (if enabled in settings)
+
+This ensures due dates and times are preserved when viewing the raw markdown and can be easily searched or processed by other plugins.
 
 ## Timelog Display Control
 

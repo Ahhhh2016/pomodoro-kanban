@@ -166,6 +166,28 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
         return true;
       }
 
+      if (genericNode.type === 'duedate' || genericNode.type === 'duedateLink') {
+        itemData.metadata.duedateStr = (genericNode as DateNode).date;
+        if (moveDates) {
+          title = markRangeForDeletion(title, {
+            start: node.position.start.offset - itemBoundary.start,
+            end: node.position.end.offset - itemBoundary.start,
+          });
+        }
+        return true;
+      }
+
+      if (genericNode.type === 'duetime') {
+        itemData.metadata.duetimeStr = (genericNode as TimeNode).time;
+        if (moveDates) {
+          title = markRangeForDeletion(title, {
+            start: node.position.start.offset - itemBoundary.start,
+            end: node.position.end.offset - itemBoundary.start,
+          });
+        }
+        return true;
+      }
+
       if (genericNode.type === 'embedWikilink') {
         itemData.metadata.fileAccessor = (genericNode as FileNode).fileAccessor;
         return true;

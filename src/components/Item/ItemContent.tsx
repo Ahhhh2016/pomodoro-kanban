@@ -25,11 +25,13 @@ import { c, useGetDateColorFn, useGetTagColorFn } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
 import { DateAndTime, RelativeDate } from './DateAndTime';
 import { InlineMetadata } from './InlineMetadata';
+import { DueDate } from './DueDate';
 import { preprocessTitle } from '../../parsers/helpers/hydrateBoard';
 import {
   constructDatePicker,
   constructMenuDatePickerOnChange,
   constructMenuTimePickerOnChange,
+  constructMenuDueDatePickerOnChange,
   constructTimePicker,
 } from './helpers';
 
@@ -70,9 +72,26 @@ export function useDatePickers(item: Item, explicitPath?: Path) {
       );
     };
 
+    const onEditDueDate = (e: MouseEvent) => {
+      constructDatePicker(
+        e.view,
+        stateManager,
+        { x: e.clientX, y: e.clientY },
+        constructMenuDueDatePickerOnChange({
+          stateManager,
+          boardModifiers,
+          item,
+          hasDueDate: true,
+          path,
+        }),
+        item.data.metadata.duedate?.toDate()
+      );
+    };
+
     return {
       onEditDate,
       onEditTime,
+      onEditDueDate,
     };
   }, [boardModifiers, path, item, stateManager]);
 }
@@ -216,7 +235,7 @@ export const ItemContent = memo(function ItemContent({
   }, [editState, stateManager, item]);
 
   const path = useNestedEntityPath();
-  const { onEditDate, onEditTime } = useDatePickers(item);
+  const { onEditDate, onEditTime, onEditDueDate } = useDatePickers(item);
   const onEnter = useCallback(
     (cm: EditorView, mod: boolean, shift: boolean) => {
       if (!allowNewLine(stateManager, mod, shift)) {
@@ -234,10 +253,12 @@ export const ItemContent = memo(function ItemContent({
           onEditDate(e);
         } else if (e.targetNode.hasClass(c('item-metadata-time'))) {
           onEditTime(e);
+        } else if (e.targetNode.hasClass(c('item-metadata-duedate'))) {
+          onEditDueDate(e);
         }
       }
     },
-    [onEditDate, onEditTime]
+    [onEditDate, onEditTime, onEditDueDate]
   );
 
   const onSubmit = useCallback(() => setEditState(EditingState.complete), []);
@@ -335,6 +356,16 @@ export const ItemContent = memo(function ItemContent({
               })}
             </div>
           )}
+          
+          {/* Due date display - positioned at bottom right, sharing line with focused time */}
+          <div className={c('item-metadata-bottom')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+            <div></div> {/* Empty div to push due date to the right */}
+            <DueDate 
+              item={item} 
+              stateManager={stateManager} 
+              onEditDueDate={onEditDueDate}
+            />
+          </div>
         </div>
       )}
     </div>

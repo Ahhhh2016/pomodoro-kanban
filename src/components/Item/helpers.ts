@@ -275,6 +275,73 @@ export function constructMenuTimePickerOnChange({
   };
 }
 
+interface ConstructMenuDueDatePickerOnChangeParams {
+  stateManager: StateManager;
+  boardModifiers: BoardModifiers;
+  item: Item;
+  hasDueDate: boolean;
+  path: Path;
+}
+
+export function constructMenuDueDatePickerOnChange({
+  stateManager,
+  boardModifiers,
+  item,
+  hasDueDate,
+  path,
+}: ConstructMenuDueDatePickerOnChangeParams) {
+  const dateFormat = stateManager.getSetting('date-format');
+  const timeFormat = stateManager.getSetting('time-format');
+  const shouldLinkDates = stateManager.getSetting('link-date-to-daily-note');
+  const dateTrigger = stateManager.getSetting('date-trigger');
+  const timeTrigger = stateManager.getSetting('time-trigger');
+  const contentMatch = shouldLinkDates
+    ? '(?:\\[[^\\]]+\\]\\([^)]+\\)|\\[\\[[^\\]]+\\]\\])'
+    : '{[^}]+}';
+  const dueDateRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger as string)}${contentMatch}`);
+  const dueTimeRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`);
+
+  return (dates: Date[]) => {
+    const date = dates[0];
+    const formattedDate = moment(date).format(dateFormat);
+    const wrappedDate = shouldLinkDates
+      ? buildLinkToDailyNote(stateManager.app, formattedDate)
+      : `{${formattedDate}}`;
+
+    let titleRaw = item.data.titleRaw;
+
+    if (hasDueDate) {
+      titleRaw = item.data.titleRaw.replace(dueDateRegEx, `$1due:${dateTrigger}${wrappedDate}`);
+    } else {
+      titleRaw = `${item.data.titleRaw} due:${dateTrigger}${wrappedDate}`;
+    }
+
+    // After setting the date, show time picker
+    setTimeout(() => {
+      constructTimePicker(
+        window,
+        stateManager,
+        { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+        (time: string) => {
+          let finalTitleRaw = titleRaw;
+          
+          // Check if there's already a due time
+          if (dueTimeRegEx.test(finalTitleRaw)) {
+            finalTitleRaw = finalTitleRaw.replace(dueTimeRegEx, `$1due:${timeTrigger}{${time}}`);
+          } else {
+            finalTitleRaw = `${finalTitleRaw} due:${timeTrigger}{${time}}`;
+          }
+          
+          boardModifiers.updateItem(path, stateManager.updateItemContent(item, finalTitleRaw));
+        },
+        moment(date)
+      );
+    }, 100);
+
+    boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+  };
+}
+
 export function getItemClassModifiers(item: Item) {
   const date = item.data.metadata.date;
   const classModifiers: string[] = [];

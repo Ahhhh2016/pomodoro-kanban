@@ -68,6 +68,9 @@ function getExtensions(stateManager: StateManager) {
     genericWrappedExtension('date', `${stateManager.getSetting('date-trigger')}{`, '}'),
     genericWrappedExtension('dateLink', `${stateManager.getSetting('date-trigger')}[[`, ']]'),
     genericWrappedExtension('time', `${stateManager.getSetting('time-trigger')}{`, '}'),
+    genericWrappedExtension('duedate', `due:${stateManager.getSetting('date-trigger')}{`, '}'),
+    genericWrappedExtension('duedateLink', `due:${stateManager.getSetting('date-trigger')}[[`, ']]'),
+    genericWrappedExtension('duetime', `due:${stateManager.getSetting('time-trigger')}{`, '}'),
     genericWrappedExtension('embedWikilink', '![[', ']]'),
     genericWrappedExtension('wikilink', '[[', ']]'),
     tagExtension(),
@@ -89,6 +92,18 @@ function getMdastExtensions(stateManager: StateManager) {
     genericWrappedFromMarkdown('time', (text, node) => {
       if (!text) return;
       node.time = text;
+    }),
+    genericWrappedFromMarkdown('duedate', (text, node) => {
+      if (!text) return;
+      node.duedate = text;
+    }),
+    genericWrappedFromMarkdown('duedateLink', (text, node) => {
+      if (!text) return;
+      node.duedate = text;
+    }),
+    genericWrappedFromMarkdown('duetime', (text, node) => {
+      if (!text) return;
+      node.duetime = text;
     }),
     genericWrappedFromMarkdown('embedWikilink', (text, node) => {
       if (!text) return;

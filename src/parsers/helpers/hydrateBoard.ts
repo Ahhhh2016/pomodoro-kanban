@@ -93,11 +93,44 @@ export function preprocessTitle(stateManager: StateManager, title: string) {
     }
   );
 
+  // Handle due date
+  title = title.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'g'),
+    (match, space, content) => {
+      const parsed = moment(content, dateFormat);
+      if (!parsed.isValid()) return match;
+      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duedate-wrapper'));
+      return `${space}<span data-duedate="${parsed.toISOString()}" class="${wrapperClass} ${c('duedate')} ${c('preview-duedate')}"${wrapperStyle}><span class="${c('item-metadata-duedate')}" style="color: red; font-weight: bold;">${parsed.format(dateDisplayFormat)}</span></span>`;
+    }
+  );
+
+  title = title.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'g'),
+    (match, space, content) => {
+      const parsed = moment(content, dateFormat);
+      if (!parsed.isValid()) return match;
+      const linkPath = app.metadataCache.getFirstLinkpathDest(content, stateManager.file.path);
+      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duedate-wrapper'));
+      return `${space}<span data-duedate="${parsed.toISOString()}" class="${wrapperClass} ${c('duedate')} ${c('preview-duedate-link')}"${wrapperStyle}><a class="${c('preview-duedate')} internal-link" data-href="${linkPath?.path ?? content}" href="${linkPath?.path ?? content}" target="_blank" rel="noopener" style="color: red; font-weight: bold;">${parsed.format(dateDisplayFormat)}</a></span>`;
+    }
+  );
+
+  // Handle due time
+  title = title.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+    (match, space, content) => {
+      const parsed = moment(content, timeFormat);
+      if (!parsed.isValid()) return match;
+      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duetime-wrapper'));
+      return `${space}<span data-duetime="${parsed.toISOString()}" class="${wrapperClass} ${c('duetime')} ${c('preview-duetime')}"${wrapperStyle}><span class="${c('item-metadata-duetime')}" style="color: red; font-weight: bold;">${parsed.format(timeFormat)}</span></span>`;
+    }
+  );
+
   return title;
 }
 
 export function hydrateItem(stateManager: StateManager, item: Item) {
-  const { dateStr, timeStr, fileAccessor } = item.data.metadata;
+  const { dateStr, timeStr, duedateStr, duetimeStr, fileAccessor } = item.data.metadata;
 
   if (dateStr) {
     item.data.metadata.date = moment(dateStr, stateManager.getSetting('date-format'));
@@ -117,6 +150,22 @@ export function hydrateItem(stateManager: StateManager, item: Item) {
     }
 
     item.data.metadata.time = time;
+  }
+
+  if (duedateStr) {
+    item.data.metadata.duedate = moment(duedateStr, stateManager.getSetting('date-format'));
+  }
+
+  if (duetimeStr) {
+    let duetime = moment(duetimeStr, stateManager.getSetting('time-format'));
+
+    if (item.data.metadata.duedate) {
+      duetime.year(item.data.metadata.duedate.year());
+      duetime.month(item.data.metadata.duedate.month());
+      duetime.date(item.data.metadata.duedate.date());
+    }
+
+    item.data.metadata.duetime = duetime;
   }
 
   if (fileAccessor) {

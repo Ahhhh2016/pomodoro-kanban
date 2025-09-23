@@ -1,6 +1,7 @@
 import Preact from 'preact/compat';
 import { useContext, useEffect, useState, Dispatch, StateUpdater } from 'preact/hooks';
 import { KanbanContext } from '../context';
+import { useNestedEntityPath } from '../../dnd/components/Droppable';
 
 import { useTimerMenu } from './TimerMenu';
 import { Icon } from '../Icon/Icon';
@@ -20,7 +21,8 @@ export const ItemTimerButton = Preact.memo(function ItemTimerButton({
   editState,
   setEditState,
 }: ItemTimerButtonProps) {
-  const { timerManager } = useContext(KanbanContext);
+  const { timerManager, stateManager, boardModifiers } = useContext(KanbanContext);
+  const path = useNestedEntityPath();
   const [isRunning, setIsRunning] = useState<boolean>(
     timerManager?.isRunning(undefined, item.id)
   );
@@ -47,9 +49,9 @@ export const ItemTimerButton = Preact.memo(function ItemTimerButton({
     return {} as const;
   }, [editState]);
 
-  if (!timerManager) return null;
+  if (!timerManager || !stateManager || !boardModifiers) return null;
 
-  const showTimerMenu = useTimerMenu(item, timerManager);
+  const showTimerMenu = useTimerMenu(item, timerManager, stateManager, boardModifiers, path);
 
   const onClick = (e: MouseEvent) => {
     e.stopPropagation();
