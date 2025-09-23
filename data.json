@@ -41,5 +41,6 @@
     "Web browsing",
     "Task done"
   ],
-  "timer-enable-sounds": true
+  "timer-enable-sounds": true,
+  "hide-timelog": true
 }

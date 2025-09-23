@@ -20,6 +20,7 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Interrupt Tracking**: Track why you stopped a session (for sessions longer than 1 minute)
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
+- **Timelog Display Control**: Option to hide timelog entries in card view while keeping them visible in markdown view
 
 ## Auto Pomodoro Rounds Feature
 
@@ -118,6 +119,25 @@ The current break time logic follows a simple but effective pattern:
 - **Session Logging**: All sessions longer than 1 minute are automatically logged to the card's markdown
 - **Interrupt Reasons**: For longer sessions, you can specify why you stopped (interruption, task complete, etc.)
 - **Card Switching**: Switch between cards while maintaining timer state
+
+## Timelog Display Control
+
+The plugin provides flexible control over how timelog entries are displayed:
+
+### Settings
+- **Show timelog**: Controls whether timelog entries are displayed at all (global setting)
+- **Hide timelog in cards**: When enabled, timelog entries are hidden in card view but remain visible in markdown view
+
+### Use Cases
+- **Clean Card View**: Hide timelog entries in the Kanban board for a cleaner, less cluttered interface
+- **Preserve Data**: Timelog data remains intact in the markdown source and is visible when viewing the file as markdown
+- **Flexible Workflow**: Switch between detailed and minimal views based on your current needs
+
+### How It Works
+1. Timelog entries are always recorded to the markdown file when timer sessions complete
+2. The "Show timelog" setting controls the base visibility of timelog entries
+3. The "Hide timelog in cards" setting provides an additional layer of control specifically for card view
+4. When both settings are configured, timelog entries will only be hidden in card view if both conditions are met
 
 ## Recent Improvements
 

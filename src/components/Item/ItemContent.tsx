@@ -193,6 +193,9 @@ export const ItemContent = memo(function ItemContent({
   const { stateManager, filePath, boardModifiers } = useContext(KanbanContext);
   const getDateColor = useGetDateColorFn(stateManager);
   const titleRef = useRef<string | null>(null);
+  
+  // Use useSetting to listen for changes to hide-timelog setting
+  const hideTimelog = stateManager.useSetting('hide-timelog');
 
   const tomatoIconSrc = useMemo(() => {
      // Inline data URL to avoid filesystem path resolution issues inside Obsidian sandbox
@@ -314,7 +317,7 @@ export const ItemContent = memo(function ItemContent({
           <InlineMetadata item={item} stateManager={stateManager} />
           <Tags tags={item.data.metadata.tags} searchQuery={searchQuery} />
 
-          {item.data.metadata.timelogs?.length > 0 && stateManager.getSetting('show-timelog') && (
+          {item.data.metadata.timelogs?.length > 0 && !hideTimelog && (
             <div className={c('item-timelogs')}>
               {item.data.metadata.timelogs.map((log, i) => {
                 // Replace leading '++' or '🍅' with the tomato SVG icon for display

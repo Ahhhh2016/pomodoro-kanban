@@ -97,7 +97,7 @@ export interface KanbanSettings {
   'show-relative-date'?: boolean;
   'show-search'?: boolean;
   'show-set-view'?: boolean;
-  'show-timelog'?: boolean;
+  'hide-timelog'?: boolean;
   'show-view-as-markdown'?: boolean;
   'table-sizing'?: Record<string, number>;
   'tag-action'?: 'kanban' | 'obsidian';
@@ -166,7 +166,7 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'show-relative-date',
   'show-search',
   'show-set-view',
-  'show-timelog',
+  'hide-timelog',
   'show-view-as-markdown',
   'table-sizing',
   'tag-action',
@@ -1578,8 +1578,8 @@ export class SettingsManager {
     });
 
     new Setting(contentEl)
-      .setName(t('Show timelog'))
-      .setDesc(t('When toggled, timelog entries will be displayed with each card'))
+      .setName(t('Hide timelog in cards'))
+      .setDesc(t('When toggled, timelog entries will be hidden in card view but still visible in markdown view'))
       .then((setting) => {
         let toggleComponent: ToggleComponent;
 
@@ -1587,7 +1587,7 @@ export class SettingsManager {
           .addToggle((toggle) => {
             toggleComponent = toggle;
 
-            const [value, globalValue] = this.getSetting('show-timelog', local);
+            const [value, globalValue] = this.getSetting('hide-timelog', local);
 
             if (value !== undefined && value !== null) {
               toggle.setValue(value as boolean);
@@ -1595,12 +1595,12 @@ export class SettingsManager {
               toggle.setValue(globalValue as boolean);
             } else {
               // default
-              toggle.setValue(true);
+              toggle.setValue(false);
             }
 
             toggle.onChange((newValue) => {
               this.applySettingsUpdate({
-                'show-timelog': {
+                'hide-timelog': {
                   $set: newValue,
                 },
               });
@@ -1610,11 +1610,11 @@ export class SettingsManager {
             b.setIcon('lucide-rotate-ccw')
               .setTooltip(t('Reset to default'))
               .onClick(() => {
-                const [, globalValue] = this.getSetting('show-timelog', local);
+                const [, globalValue] = this.getSetting('hide-timelog', local);
                 toggleComponent.setValue(!!globalValue);
 
                 this.applySettingsUpdate({
-                  $unset: ['show-timelog'],
+                  $unset: ['hide-timelog'],
                 });
               });
           });

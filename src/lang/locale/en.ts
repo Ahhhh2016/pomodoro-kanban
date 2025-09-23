@@ -79,6 +79,9 @@ const en = {
   'Show timelog': 'Show timelog',
   'When toggled, timelog entries will be displayed with each card':
     'When toggled, timelog entries will be displayed with each card',
+  'Hide timelog in cards': 'Hide timelog in cards',
+  'When toggled, timelog entries will be hidden in card view but still visible in markdown view':
+    'When toggled, timelog entries will be hidden in card view but still visible in markdown view',
   'Reset to default': 'Reset to default',
   'Date & Time': 'Date & Time',
   'Date trigger': 'Date trigger',
