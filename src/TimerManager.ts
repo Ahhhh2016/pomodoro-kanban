@@ -48,6 +48,11 @@ export class TimerManager {
   private longBreakMs: number = 15 * 60 * 1000;
   private longBreakInterval: number = 4;
 
+  /** Track the last mode used before break (pomodoro or stopwatch) */
+  private lastWorkMode: TimerMode = 'pomodoro';
+  /** Track the last card used before break */
+  private lastWorkCardId?: string;
+
   /** Returns total break duration ms currently active */
   getBreakDuration() {
     return this.breakDurationMs;
@@ -324,6 +329,12 @@ export class TimerManager {
     // Apply board-local duration if available
     this.applyPomodoroForCard(cardId);
 
+    // Track the last work mode and card (for break skip functionality)
+    if (mode === 'pomodoro' || mode === 'stopwatch') {
+      this.lastWorkMode = mode;
+      this.lastWorkCardId = cardId;
+    }
+
     this.state.mode = mode;
     this.state.targetCardId = cardId;
     this.state.running = true;
@@ -331,6 +342,25 @@ export class TimerManager {
     this.currentSessionStart = this.state.start;
     this.emitter.emit('start');
     this.emitter.emit('change');
+  }
+
+  /**
+   * Skip the current break timer without logging.
+   * This is specifically for break sessions to allow users to skip breaks.
+   * After skipping, automatically switches back to the last work mode and card.
+   */
+  skipBreak() {
+    if (!this.state.running || this.state.mode !== 'break') return;
+    
+    this.stopTimer();
+    
+    // Switch back to the last work mode and card
+    const targetMode = this.lastWorkMode;
+    const targetCardId = this.lastWorkCardId;
+    
+    this.reset(targetMode, targetCardId);
+    this.emitter.emit('change');
+    new Notice('Break skipped');
   }
 
   /**
@@ -430,6 +460,11 @@ export class TimerManager {
 
       // 切换目标卡片并重置当前 session 起点
       this.state.targetCardId = cardId;
+
+      // Update last work card when switching cards during work mode
+      if (this.state.mode === 'pomodoro' || this.state.mode === 'stopwatch') {
+        this.lastWorkCardId = cardId;
+      }
 
       // Keep current session timing and target duration unchanged when switching cards
       // Do NOT adjust pomodoro/break durations on switch; only apply on start()

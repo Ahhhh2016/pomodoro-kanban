@@ -104,7 +104,12 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
   const totalStr = totalMin >= 60 ? `${Math.floor(totalMin / 60)}h ${totalMin % 60}m` : `${totalMin}m`;
 
   const toggle = () => {
-    timer.toggle(timer.state.mode === 'break' ? 'stopwatch' : timer.state.mode, timer.state.targetCardId);
+    if (isBreak && isRunning) {
+      // For break mode, use skipBreak instead of regular stop
+      timer.skipBreak();
+    } else {
+      timer.toggle(timer.state.mode === 'break' ? 'stopwatch' : timer.state.mode, timer.state.targetCardId);
+    }
   };
 
   const switchMode = () => {
@@ -127,7 +132,9 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
 
       <div className="kanban-timer-panel__time-row">
         <div className="kanban-timer-panel__time-digits">{timeStr}</div>
-        <button className={`kanban-btn kanban-btn--primary`} onClick={toggle}>{isRunning ? 'Stop' : 'Start'}</button>
+        <button className={`kanban-btn kanban-btn--primary`} onClick={toggle}>
+          {isRunning ? (isBreak ? 'Skip' : 'Stop') : 'Start'}
+        </button>
       </div>
 
       {targetTitle && (
