@@ -119,6 +119,11 @@ The current break time logic follows a simple but effective pattern:
 - **Interrupt Reasons**: For longer sessions, you can specify why you stopped (interruption, task complete, etc.)
 - **Card Switching**: Switch between cards while maintaining timer state
 
+## Recent Improvements
+
+### UI Consistency Fixes
+- **Button Size Consistency**: Fixed timer button and menu button size inconsistency on hover. Both buttons now maintain the same size when hovered, providing a more consistent user experience.
+
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)
 

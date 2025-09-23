@@ -974,8 +974,9 @@ button.kanban-plugin__new-item-button {
 }
 
 .kanban-plugin__item-prefix-button-wrapper .kanban-plugin__item-prefix-button {
-  width: var(--checkbox-size);
-  height: var(--checkbox-size);
+  /* Remove fixed size constraint to match menu button size */
+  min-width: var(--checkbox-size);
+  min-height: var(--checkbox-size);
 }
 
 .kanban-plugin__item-prefix-button-wrapper .kanban-plugin__item-prefix-button,
@@ -999,6 +1000,20 @@ button.kanban-plugin__item-postfix-button.is-enabled,
 .kanban-plugin__item:hover button.kanban-plugin__item-postfix-button {
   visibility: visible;
   opacity: 1;
+}
+
+/* Ensure both timer and menu buttons have consistent sizing and alignment */
+.kanban-plugin__item-prefix-button-wrapper .kanban-plugin__item-prefix-button,
+.kanban-plugin__item-postfix-button-wrapper .kanban-plugin__item-postfix-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-s);
+  transition: all 100ms ease;
+  /* Ensure both buttons have the same vertical alignment */
+  margin-block: 0;
+  align-self: flex-start;
 }
 
 .kanban-plugin__item-settings-actions {
