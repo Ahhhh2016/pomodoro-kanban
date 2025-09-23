@@ -735,9 +735,10 @@ button.kanban-plugin__new-item-button {
   padding-inline: 8px;
   // align-items: center;
 
-  &:not(:only-child) {
-    border-bottom: 1px solid var(--background-modifier-border);
-  }
+  // Removed border-bottom to avoid double lines with focused time
+  // &:not(:only-child) {
+  //   border-bottom: 1px solid var(--background-modifier-border);
+  // }
 }
 
 .kanban-plugin__item-title {
