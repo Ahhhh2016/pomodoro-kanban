@@ -121,6 +121,15 @@ The current break time logic follows a simple but effective pattern:
 
 ## Recent Improvements
 
+### Timer Settings Priority Fix
+- **Local Settings Priority**: Fixed an issue where board-specific timer settings (pomodoro rounds, break time duration) were not being properly applied. Local board settings now correctly take precedence over global settings for all timer-related configurations including:
+  - Pomodoro duration
+  - Short break duration  
+  - Long break duration
+  - Long break interval
+  - Auto pomodoro rounds
+- **Real-time Settings Updates**: Timer settings now update immediately when changed in board settings, without requiring a restart.
+
 ### UI Consistency Fixes
 - **Button Size Consistency**: Fixed timer button and menu button size inconsistency on hover. Both buttons now maintain the same size when hovered, providing a more consistent user experience.
 

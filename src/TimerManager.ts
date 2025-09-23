@@ -171,24 +171,39 @@ export class TimerManager {
     }
   }
 
-  /** Attach listeners to each board's settings notifier so local duration changes apply immediately */
+  /** Attach listeners to each board's settings notifier so local timer changes apply immediately */
   private subscribeBoardDurationChanges() {
     const sms: Map<any, any> = (this.plugin as any).stateManagers;
     if (!sms) return;
+    
+    // List of timer settings to monitor
+    const timerSettings = [
+      'timer-pomodoro',
+      'timer-short-break', 
+      'timer-long-break',
+      'timer-long-break-interval',
+      'timer-auto-rounds'
+    ];
+    
     sms.forEach((sm: any) => {
       if (!sm?.settingsNotifiers) return;
-      let arr = sm.settingsNotifiers.get('timer-pomodoro');
-      if (!arr) {
-        arr = [];
-        sm.settingsNotifiers.set('timer-pomodoro', arr);
-      }
+      
       const listener = () => {
-        // If current timer belongs to this board, update duration
-        if (this.state.running && this.resolvePomodoroForCard(this.state.targetCardId) !== null) {
-          this.applyPomodoroForCard(this.state.targetCardId);
+        // If current timer belongs to this board, update all timer settings
+        if (this.state.running && this.state.targetCardId) {
+          this.applyTimerSettingsForCard(this.state.targetCardId);
         }
       };
-      arr.push(listener);
+      
+      // Subscribe to all timer settings
+      timerSettings.forEach(settingKey => {
+        let arr = sm.settingsNotifiers.get(settingKey);
+        if (!arr) {
+          arr = [];
+          sm.settingsNotifiers.set(settingKey, arr);
+        }
+        arr.push(listener);
+      });
     });
   }
 
@@ -219,8 +234,8 @@ export class TimerManager {
     this.autoRounds = autoRounds;
   }
 
-  /** Get board-local pomodoro minutes for the given card, falling back to global */
-  private resolvePomodoroForCard(cardId?: string): number {
+  /** Get board-local timer setting for the given card, falling back to global */
+  private resolveTimerSettingForCard(cardId: string | undefined, settingKey: string): number | null {
     if (!cardId) return null;
     const sms: Map<any, any> = (this.plugin as any).stateManagers;
     if (!sms) return null;
@@ -238,20 +253,72 @@ export class TimerManager {
       };
 
       if (contains(sm.state)) {
-        const val = sm.getSetting?.('timer-pomodoro');
+        const val = sm.getSetting?.(settingKey as any);
         if (val !== undefined && val !== null) return Number(val);
       }
     }
     return null;
   }
 
-  private applyPomodoroForCard(cardId?: string) {
-    const localMin = this.resolvePomodoroForCard(cardId);
-    if (localMin && !isNaN(localMin) && localMin > 0) {
-      this.pomodoroDefault = localMin * 60 * 1000;
+  /** Apply board-local timer settings for the given card, falling back to global */
+  private applyTimerSettingsForCard(cardId?: string) {
+    if (!cardId) {
+      // fallback to global settings
+      this.updateSettings();
+      return;
+    }
+
+    // Get local settings for this card's board
+    const localPomodoro = this.resolveTimerSettingForCard(cardId, 'timer-pomodoro');
+    const localShortBreak = this.resolveTimerSettingForCard(cardId, 'timer-short-break');
+    const localLongBreak = this.resolveTimerSettingForCard(cardId, 'timer-long-break');
+    const localLongBreakInterval = this.resolveTimerSettingForCard(cardId, 'timer-long-break-interval');
+    const localAutoRounds = this.resolveTimerSettingForCard(cardId, 'timer-auto-rounds');
+
+    // Apply local settings if available, otherwise use global settings
+    if (localPomodoro && !isNaN(localPomodoro) && localPomodoro > 0) {
+      this.pomodoroDefault = localPomodoro * 60 * 1000;
     } else {
       // fallback to global
-      this.updateSettings();
+      const settings: any = (this.plugin as any).settings ?? {};
+      const pomodoroMin = Number(settings['timer-pomodoro']);
+      this.pomodoroDefault = !isNaN(pomodoroMin) && pomodoroMin > 0 ? pomodoroMin * 60 * 1000 : 25 * 60 * 1000;
+    }
+
+    if (localShortBreak && !isNaN(localShortBreak) && localShortBreak > 0) {
+      this.shortBreakMs = localShortBreak * 60 * 1000;
+    } else {
+      // fallback to global
+      const settings: any = (this.plugin as any).settings ?? {};
+      const shortMin = Number(settings['timer-short-break']);
+      this.shortBreakMs = !isNaN(shortMin) && shortMin > 0 ? shortMin * 60 * 1000 : 5 * 60 * 1000;
+    }
+
+    if (localLongBreak && !isNaN(localLongBreak) && localLongBreak > 0) {
+      this.longBreakMs = localLongBreak * 60 * 1000;
+    } else {
+      // fallback to global
+      const settings: any = (this.plugin as any).settings ?? {};
+      const longMin = Number(settings['timer-long-break']);
+      this.longBreakMs = !isNaN(longMin) && longMin > 0 ? longMin * 60 * 1000 : 15 * 60 * 1000;
+    }
+
+    if (localLongBreakInterval && !isNaN(localLongBreakInterval) && localLongBreakInterval > 0) {
+      this.longBreakInterval = localLongBreakInterval;
+    } else {
+      // fallback to global
+      const settings: any = (this.plugin as any).settings ?? {};
+      const interval = Number(settings['timer-long-break-interval']) || 4;
+      this.longBreakInterval = interval;
+    }
+
+    if (localAutoRounds !== null && !isNaN(localAutoRounds) && localAutoRounds >= 0) {
+      this.autoRounds = localAutoRounds;
+    } else {
+      // fallback to global
+      const settings: any = (this.plugin as any).settings ?? {};
+      const autoRounds = Number(settings['timer-auto-rounds']) || 0;
+      this.autoRounds = autoRounds;
     }
   }
 
@@ -356,8 +423,8 @@ export class TimerManager {
       return;
     }
     
-    // Apply board-local duration if available
-    this.applyPomodoroForCard(cardId);
+    // Apply board-local timer settings if available
+    this.applyTimerSettingsForCard(cardId);
 
     // Track the last work mode and card (for break skip functionality)
     if (mode === 'pomodoro' || mode === 'stopwatch') {

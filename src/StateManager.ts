@@ -264,6 +264,7 @@ export class StateManager {
       'timer-short-break': this.getSettingRaw('timer-short-break', suppliedSettings),
       'timer-long-break': this.getSettingRaw('timer-long-break', suppliedSettings),
       'timer-long-break-interval': this.getSettingRaw('timer-long-break-interval', suppliedSettings),
+      'timer-auto-rounds': this.getSettingRaw('timer-auto-rounds', suppliedSettings),
       'timer-interrupts': (this.getSettingRaw('timer-interrupts', suppliedSettings) as string[])?.length > 0 
         ? this.getSettingRaw('timer-interrupts', suppliedSettings) 
         : DEFAULT_INTERRUPT_REASONS,
