@@ -30,6 +30,7 @@
   ],
   "timer-pomodoro": 18,
   "show-checkboxes": false,
+  "show-timelog": true,
   "timer-interrupts": [
     "Boss interrupted",
     "Colleague interrupted",

@@ -76,6 +76,9 @@ const en = {
   'Display card checkbox': 'Display card checkbox',
   'When toggled, a checkbox will be displayed with each card':
     'When toggled, a checkbox will be displayed with each card',
+  'Show timelog': 'Show timelog',
+  'When toggled, timelog entries will be displayed with each card':
+    'When toggled, timelog entries will be displayed with each card',
   'Reset to default': 'Reset to default',
   'Date & Time': 'Date & Time',
   'Date trigger': 'Date trigger',

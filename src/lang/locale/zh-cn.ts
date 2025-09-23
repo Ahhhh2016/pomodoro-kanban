@@ -68,6 +68,8 @@ const lang: Partial<Lang> = {
     '已归档卡片可以在 Markdown 模式下查看。该设置将使已归档卡片在达到最大数量时删除旧卡。设置为 -1 可以永久保留所有归档卡片。',
   'Display card checkbox': '展示卡片复选框',
   'When toggled, a checkbox will be displayed with each card': '打开时，复选框会出现在每张卡片上',
+  'Show timelog': '显示时间日志',
+  'When toggled, timelog entries will be displayed with each card': '打开时，时间日志条目会显示在每张卡片上',
   'Reset to default': '还原初始设置',
   'Date & Time': '日期和时间',
   'Date trigger': '日期触发指令',

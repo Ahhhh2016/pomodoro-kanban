@@ -340,6 +340,20 @@ export class TimerManager {
   stop(askReason: boolean = true) {
     if (!this.state.running) return;
  
+    // Check if timer has been running for less than 1 minute
+    const currentTime = Date.now();
+    const runningDuration = currentTime - this.currentSessionStart;
+    const oneMinuteInMs = 60 * 1000; // 1 minute in milliseconds
+    
+    // If running for less than 1 minute, stop without asking for reason and don't log
+    if (runningDuration < oneMinuteInMs) {
+      this.stopTimer();
+      this.reset(this.state.mode, this.state.targetCardId);
+      this.emitter.emit('change');
+      new Notice('Sessions shorter than 1 minute are not recorded.');
+      return;
+    }
+    
     // Temporarily stop the timer
     this.stopTimer();
     
@@ -567,7 +581,7 @@ export class TimerManager {
   /** Append session bullet under the corresponding card in markdown and update board */
   private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
     if (!cardId) return;
-    const line = `++ ${moment(start).format('@{YYYY-MM-DD}')} @@{${moment(start).format('HH:mm')}} – @@{${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
+    const line = `++ ${moment(start).format('YYYY-MM-DD')} ${moment(start).format('HH:mm')}} – {${moment(end).format('HH:mm')}} (${Math.round(duration / 60000)} m)`;
     for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
       const board = sm.state;
       const updated = this.appendToBoard(sm, board, cardId, line);

@@ -97,6 +97,7 @@ export interface KanbanSettings {
   'show-relative-date'?: boolean;
   'show-search'?: boolean;
   'show-set-view'?: boolean;
+  'show-timelog'?: boolean;
   'show-view-as-markdown'?: boolean;
   'table-sizing'?: Record<string, number>;
   'tag-action'?: 'kanban' | 'obsidian';
@@ -163,6 +164,7 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'show-relative-date',
   'show-search',
   'show-set-view',
+  'show-timelog',
   'show-view-as-markdown',
   'table-sizing',
   'tag-action',
@@ -1571,6 +1573,49 @@ export class SettingsManager {
             });
         });
     });
+
+    new Setting(contentEl)
+      .setName(t('Show timelog'))
+      .setDesc(t('When toggled, timelog entries will be displayed with each card'))
+      .then((setting) => {
+        let toggleComponent: ToggleComponent;
+
+        setting
+          .addToggle((toggle) => {
+            toggleComponent = toggle;
+
+            const [value, globalValue] = this.getSetting('show-timelog', local);
+
+            if (value !== undefined && value !== null) {
+              toggle.setValue(value as boolean);
+            } else if (globalValue !== undefined && globalValue !== null) {
+              toggle.setValue(globalValue as boolean);
+            } else {
+              // default
+              toggle.setValue(true);
+            }
+
+            toggle.onChange((newValue) => {
+              this.applySettingsUpdate({
+                'show-timelog': {
+                  $set: newValue,
+                },
+              });
+            });
+          })
+          .addExtraButton((b) => {
+            b.setIcon('lucide-rotate-ccw')
+              .setTooltip(t('Reset to default'))
+              .onClick(() => {
+                const [, globalValue] = this.getSetting('show-timelog', local);
+                toggleComponent.setValue(!!globalValue);
+
+                this.applySettingsUpdate({
+                  $unset: ['show-timelog'],
+                });
+              });
+          });
+      });
 
     /* ================= Timer Settings ================= */
     contentEl.createEl('h3', { text: 'Timer Settings' });
