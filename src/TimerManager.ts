@@ -47,11 +47,14 @@ export class TimerManager {
   private shortBreakMs: number = 5 * 60 * 1000;
   private longBreakMs: number = 15 * 60 * 1000;
   private longBreakInterval: number = 4;
+  private autoRounds: number = 0;
 
   /** Track the last mode used before break (pomodoro or stopwatch) */
   private lastWorkMode: TimerMode = 'pomodoro';
   /** Track the last card used before break */
   private lastWorkCardId?: string;
+  /** Track current auto round count */
+  private currentAutoRound: number = 0;
 
   /** Returns total break duration ms currently active */
   getBreakDuration() {
@@ -208,10 +211,12 @@ export class TimerManager {
     const shortMin = Number(settings['timer-short-break']);
     const longMin = Number(settings['timer-long-break']);
     const interval = Number(settings['timer-long-break-interval']) || 4;
+    const autoRounds = Number(settings['timer-auto-rounds']) || 0;
 
     this.shortBreakMs = !isNaN(shortMin) && shortMin > 0 ? shortMin * 60 * 1000 : 5 * 60 * 1000;
     this.longBreakMs = !isNaN(longMin) && longMin > 0 ? longMin * 60 * 1000 : 15 * 60 * 1000;
     this.longBreakInterval = interval;
+    this.autoRounds = autoRounds;
   }
 
   /** Get board-local pomodoro minutes for the given card, falling back to global */
@@ -268,6 +273,9 @@ export class TimerManager {
         this.stop(false);
         new Notice('Break over!');
         this.playEndSound();
+        
+        // Check if we should auto-start next pomodoro round
+        this.checkAndStartNextRound();
       }
     }
   }
@@ -277,6 +285,7 @@ export class TimerManager {
     this.stop(false);
     this.playEndSound();
     this.pomodoroCount += 1;
+    this.currentAutoRound += 1;
 
     // determine break length
     const isLong = this.pomodoroCount % this.longBreakInterval === 0;
@@ -284,6 +293,24 @@ export class TimerManager {
 
     // start break
     this.start('break', this.state.targetCardId);
+  }
+
+  /**
+   * Check if we should auto-start the next pomodoro round after break ends
+   */
+  private checkAndStartNextRound() {
+    // Only auto-start if auto rounds is enabled and we haven't reached the limit
+    if (this.autoRounds > 0 && this.currentAutoRound < this.autoRounds) {
+      // Auto-start next pomodoro on the same card
+      setTimeout(() => {
+        this.start('pomodoro', this.lastWorkCardId);
+        new Notice(`Auto-starting round ${this.currentAutoRound + 1}/${this.autoRounds}`);
+      }, 1000); // Small delay to let the break end notice show
+    } else if (this.autoRounds > 0 && this.currentAutoRound >= this.autoRounds) {
+      // Reset auto round counter when we've completed all rounds
+      this.currentAutoRound = 0;
+      new Notice(`Completed ${this.autoRounds} automatic pomodoro rounds!`);
+    }
   }
 
   reset(mode: TimerMode, cardId?: string) {
@@ -295,6 +322,9 @@ export class TimerManager {
       elapsed: 0,
       targetCardId: cardId,
     };
+    
+    // Reset auto round counter when manually resetting
+    this.currentAutoRound = 0;
    
     this.emitter.emit('change');
   }
@@ -333,6 +363,11 @@ export class TimerManager {
     if (mode === 'pomodoro' || mode === 'stopwatch') {
       this.lastWorkMode = mode;
       this.lastWorkCardId = cardId;
+    }
+
+    // Reset auto round counter when manually starting a new pomodoro
+    if (mode === 'pomodoro' && this.currentAutoRound === 0) {
+      this.currentAutoRound = 0; // This will be incremented in completePomodoro
     }
 
     this.state.mode = mode;

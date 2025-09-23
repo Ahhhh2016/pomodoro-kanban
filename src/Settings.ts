@@ -115,6 +115,8 @@ export interface KanbanSettings {
   'timer-long-break'?: number;
   /** Number of pomodoros before a long break */
   'timer-long-break-interval'?: number;
+  /** Number of automatic pomodoro rounds (0 = disabled) */
+  'timer-auto-rounds'?: number;
   /** List of interrupt reasons */
   'timer-interrupts'?: string[];
   /** Enable notification sounds */
@@ -177,6 +179,7 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'timer-short-break',
   'timer-long-break',
   'timer-long-break-interval',
+  'timer-auto-rounds',
   'timer-interrupts',
   'timer-enable-sounds',
   'timer-sound-file',
@@ -1627,10 +1630,12 @@ export class SettingsManager {
       key: keyof KanbanSettings,
       label: string,
       placeholder: string,
-      defaultVal: number
+      defaultVal: number,
+      desc?: string
     ) => {
       new Setting(contentEl)
         .setName(label)
+        .setDesc(desc || '')
         .then((setting) => {
           let inputComponent: TextComponent;
 
@@ -1680,7 +1685,15 @@ export class SettingsManager {
       'timer-long-break-interval',
       'Long break interval',
       '4',
-      4
+      4,
+      'Number of completed pomodoros before taking a long break. For example, set to 4 means every 4th pomodoro will be followed by a long break.'
+    );
+    makeDurationSetting(
+      'timer-auto-rounds',
+      'Auto pomodoro rounds (0 = disabled)',
+      '0',
+      0,
+      'After the break, the next Pomodoro will automatically start. Repeat until all the set rounds are completed.'
     );
 
     /* Interrupt reasons */

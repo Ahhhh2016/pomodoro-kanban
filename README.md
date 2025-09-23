@@ -14,11 +14,39 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Pomodoro Timer**: 25-minute focused work sessions (configurable)
 - **Stopwatch**: Free-form timing for flexible work sessions
 - **Break Timer**: Automatic short (5min) and long (15min) breaks
+- **Auto Pomodoro Rounds**: Set automatic pomodoro rounds that continue after breaks (configurable)
 - **Quick Stop**: If you stop a timer within 1 minute, it won't ask for a reason and won't be logged
 - **Time Logging**: Automatic logging of work sessions to card markdown
 - **Interrupt Tracking**: Track why you stopped a session (for sessions longer than 1 minute)
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
+
+## Auto Pomodoro Rounds Feature
+
+The plugin now supports automatic pomodoro rounds, allowing you to set a number of consecutive pomodoro sessions that will automatically start after each break ends.
+
+### How It Works
+
+1. **Set Auto Rounds**: In the Timer Settings, configure "Auto pomodoro rounds" to a number greater than 0 (0 = disabled)
+2. **Start First Pomodoro**: Begin your first pomodoro session manually
+3. **Automatic Continuation**: After each pomodoro completes and break ends, the next pomodoro will automatically start
+4. **Round Tracking**: The system tracks your progress and shows notifications like "Auto-starting round 2/4"
+5. **Completion**: When all rounds are completed, you'll see "Completed X automatic pomodoro rounds!"
+
+### Settings
+
+- **Auto pomodoro rounds**: Set to 0 to disable, or any positive number to enable automatic rounds
+- **Global and Local**: This setting works both globally (for all boards) and locally (per board)
+- **Reset Behavior**: The auto round counter resets when you manually start a new pomodoro or reset the timer
+
+### Example Usage
+
+- Set "Auto pomodoro rounds" to 4
+- Start your first pomodoro manually
+- After 25 minutes, break starts automatically
+- After 5 minutes, second pomodoro starts automatically
+- This continues until all 4 rounds are completed
+- Perfect for focused work sessions without manual intervention
 
 ## Break Time Logic Analysis & Optimization
 
