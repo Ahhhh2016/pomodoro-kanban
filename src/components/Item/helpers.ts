@@ -761,16 +761,9 @@ export function constructEstimateTimeInput({
     const modal = win.document.body.createDiv(
       { cls: `${c('estimate-time-modal')} ${c('ignore-click-outside')}` },
       (div) => {
+        // Position the modal
         div.style.left = `${coordinates?.x || 0}px`;
         div.style.top = `${coordinates?.y || 0}px`;
-        div.style.position = 'fixed';
-        div.style.zIndex = '1000';
-        div.style.backgroundColor = 'var(--background-primary)';
-        div.style.border = '1px solid var(--background-modifier-border)';
-        div.style.borderRadius = '6px';
-        div.style.padding = '16px';
-        div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        div.style.minWidth = '200px';
 
         // Title
         div.createEl('h3', { 
@@ -778,8 +771,11 @@ export function constructEstimateTimeInput({
           cls: 'modal-title'
         });
 
+        // Time inputs container with grid layout
+        const timeInputsContainer = div.createDiv({ cls: 'time-inputs' });
+
         // Hours input
-        const hoursContainer = div.createDiv({ cls: 'input-container' });
+        const hoursContainer = timeInputsContainer.createDiv({ cls: 'input-container' });
         hoursContainer.createEl('label', { text: t('Hours') + ':', cls: 'input-label' });
         const hoursInput = hoursContainer.createEl('input', {
           type: 'number',
@@ -792,7 +788,7 @@ export function constructEstimateTimeInput({
         hoursInput.setAttribute('max', '23');
 
         // Minutes input
-        const minutesContainer = div.createDiv({ cls: 'input-container' });
+        const minutesContainer = timeInputsContainer.createDiv({ cls: 'input-container' });
         minutesContainer.createEl('label', { text: t('Minutes') + ':', cls: 'input-label' });
         const minutesInput = minutesContainer.createEl('input', {
           type: 'number',

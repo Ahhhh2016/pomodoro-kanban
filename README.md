@@ -324,6 +324,18 @@ The focus time calculation has been updated to work with the new text format whi
 - **Improved Visual Clarity**: Timer cards now display a clean, single dashed border that clearly indicates active timing state
 - **Consistent Styling**: Timer border styling is now consistent across all timing states
 
+### Estimate Time Modal Style Optimization
+- **Modern Design**: Completely redesigned the estimate time modal with a modern, clean interface
+- **Improved Layout**: Time inputs now use a responsive grid layout with better spacing and alignment
+- **Enhanced Visual Effects**: Added smooth animations, better shadows, and backdrop blur for a premium feel
+- **Better User Experience**: 
+  - Centered title with clear visual hierarchy
+  - Improved input field styling with focus states and hover effects
+  - Better button layout with consistent spacing and hover animations
+  - Responsive design that adapts to smaller screens
+- **Accessibility Improvements**: Better contrast, focus indicators, and keyboard navigation support
+- **Consistent Theming**: Modal now properly uses Obsidian's CSS variables for seamless theme integration
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.
