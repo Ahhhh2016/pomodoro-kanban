@@ -28,8 +28,8 @@ import { frontmatterKey } from './parsers/common';
 import { h, Fragment } from 'preact';
 import { TimerPanelModal } from './components/TimerPanelModal';
 
-export const kanbanViewType = 'kanban';
-export const kanbanIcon = 'tomato';
+export const kanbanViewType = 'pomodoro-kanban';
+export const kanbanIcon = 'pomodoro-tomato';
 
 export class KanbanView extends TextFileView implements HoverParent {
   plugin: KanbanPlugin;

@@ -6,7 +6,7 @@ import { Board, FileMetadata, Item } from 'src/components/types';
 import { defaultSort } from 'src/helpers/util';
 import { t } from 'src/lang/helpers';
 
-export const frontmatterKey = 'kanban-plugin';
+export const frontmatterKey = 'pomodoro-kanban-plugin';
 
 export enum ParserFormats {
   List,

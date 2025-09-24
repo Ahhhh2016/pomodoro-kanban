@@ -327,7 +327,7 @@ export const ItemContent = memo(function ItemContent({
                 // Replace leading '++' or '🍅' with the tomato SVG icon for display
                 const displayLog = log.replace(
                   /^\s*(\+\+|🍅)\s/,
-                  `<img class="${c('icon')} ${c('icon-tomato')}" src="${tomatoIconSrc}" alt="" /> `
+                  `<img class="${c('icon')} ${c('icon-pomodoro-tomato')}" src="${tomatoIconSrc}" alt="" /> `
                 );
                 return (
                   <span
