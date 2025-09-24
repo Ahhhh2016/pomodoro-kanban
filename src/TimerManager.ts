@@ -3,6 +3,7 @@ import { Notice, Plugin, TFile } from 'obsidian';
 import moment from 'moment';
 import update from 'immutability-helper';
 import { StopReasonModal } from './components/StopReasonModal';
+import { t } from './lang/helpers';
 
 export type TimerMode = 'stopwatch' | 'pomodoro' | 'break';
 
@@ -338,7 +339,7 @@ export class TimerManager {
       const spent = Date.now() - this.state.start + this.state.elapsed;
       if (spent >= this.breakDurationMs) {
         this.stop(false);
-        new Notice('Break over!');
+        new Notice(t('Break over!'));
         this.playEndSound();
         
         // Check if we should auto-start next pomodoro round
@@ -371,12 +372,12 @@ export class TimerManager {
       // Auto-start next pomodoro on the same card
       setTimeout(() => {
         this.start('pomodoro', this.lastWorkCardId);
-        new Notice(`Auto-starting pomodoro ${this.currentAutoRound + 1}/${this.autoRounds}`);
+        new Notice(`${t('Auto-starting pomodoro')} ${this.currentAutoRound + 1}/${this.autoRounds}`);
       }, 1000); // Small delay to let the break end notice show
     } else if (this.autoRounds > 0 && this.currentAutoRound >= this.autoRounds) {
       // Reset auto round counter when we've completed all rounds
       this.currentAutoRound = 0;
-      new Notice(`Completed ${this.autoRounds} automatic pomodoro rounds!`);
+      new Notice(`${t('Completed automatic pomodoro rounds!').replace('!', ` ${this.autoRounds} `)}`);
     }
   }
 
@@ -416,7 +417,7 @@ export class TimerManager {
   start(mode: TimerMode, cardId?: string) {
     // Prevent starting a timer without a target card
     if (!cardId) {
-      new Notice('Select a card to start working');
+      new Notice(t('Select a card to start working'));
       return;
     }
 
@@ -466,7 +467,7 @@ export class TimerManager {
     const shouldResetAutoRound = this.autoRounds === 0;
     this.reset(targetMode, targetCardId, shouldResetAutoRound);
     this.emitter.emit('change');
-    new Notice('Break skipped');
+    new Notice(t('Break skipped'));
     
     // Check if we should auto-start next pomodoro or show completion message
     if (this.autoRounds > 0) {
@@ -474,13 +475,13 @@ export class TimerManager {
         // More rounds to go, auto-start next pomodoro
         setTimeout(() => {
           this.start('pomodoro', targetCardId);
-          new Notice(`Auto-starting pomodoro ${this.currentAutoRound + 1}/${this.autoRounds}`);
+          new Notice(`${t('Auto-starting pomodoro')} ${this.currentAutoRound + 1}/${this.autoRounds}`);
         }, 1000); // Small delay to let the skip notice show
       } else {
         // All rounds completed, show congratulations message
         setTimeout(() => {
           this.currentAutoRound = 0;
-          new Notice(`🎉 恭喜！你完成了 ${this.autoRounds} 轮番茄钟工作法！继续保持专注！`);
+          new Notice(`${t('Completed automatic pomodoro rounds!').replace('!', ` ${this.autoRounds} `)}`);
         }, 1000); // Small delay to let the skip notice show
       }
     }
@@ -505,7 +506,7 @@ export class TimerManager {
       const shouldResetAutoRound = this.autoRounds === 0;
       this.reset(this.state.mode, this.state.targetCardId, shouldResetAutoRound);
       this.emitter.emit('change');
-      new Notice('Sessions shorter than 1 minute are not recorded.');
+      new Notice(t('Sessions shorter than 1 minute are not recorded.'));
       return;
     }
     
@@ -550,7 +551,7 @@ export class TimerManager {
       (reason: string) => {
         // User selected reason, finalize
         this.emitter.emit('stop');
-        new Notice(`Timer stopped: ${reason}`);
+        new Notice(`${t('Timer stopped:')} ${reason}`);
         finalizeSession();
       },
       () => {
@@ -660,7 +661,8 @@ export class TimerManager {
     const sms: Map<any, any> = (this.plugin as any).stateManagers;
     if (!sms) return;
     // Match timelog lines with optional list bullet, supporting ++, 🍅, or ⏱ markers, allowing spaces around dash variants (–, —, -)
-    const lineRegex = /^(?:[-*]\s+)?(?:\+\+|🍅|⏱)\s+@\{(\d{4}-\d{2}-\d{2})\}\s+@@\{(\d{2}:\d{2})\}\s*[–—-]\s*@@\{(\d{2}:\d{2})\}\s+\((\d+)\s+m/;
+    // 支持新的纯文本格式：++ 2024-01-15 10:00 – 10:25 (25 m)
+    const lineRegex = /^(?:[-*]\s+)?(?:\+\+|🍅|⏱)\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})\s*[–—-]\s*(\d{2}:\d{2})\s+\((\d+)\s+m/;
 
     for (const sm of sms.values()) {
       const board = sm.state;
@@ -743,6 +745,7 @@ export class TimerManager {
   /** Append session bullet under the corresponding card in markdown and update board */
   private appendSessionToMarkdown(cardId: string | undefined, start: number, end: number, duration: number) {
     if (!cardId) return;
+    // 使用纯文本格式，不使用时间选择器格式
     const line = `++ ${moment(start).format('YYYY-MM-DD')} ${moment(start).format('HH:mm')} – ${moment(end).format('HH:mm')} (${Math.round(duration / 60000)} m)`;
     for (const sm of (this.plugin as any).stateManagers?.values?.() ?? []) {
       const board = sm.state;

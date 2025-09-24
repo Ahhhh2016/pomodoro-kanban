@@ -6,7 +6,7 @@ import { c } from '../helpers';
 
 /**
  * Display individual focus time logs for a card. These are parsed from the
- * markdown bullets that TimerManager appends (e.g. "- @{2025-07-10} @@{10:00}–@@{10:25} (25 m)").
+ * markdown bullets that TimerManager appends (e.g. "++ 2025-07-10 10:00 – 10:25 (25 m)").
  *
  * The component listens to the TimerManager `log` event so it refreshes when a
  * new session is recorded.
