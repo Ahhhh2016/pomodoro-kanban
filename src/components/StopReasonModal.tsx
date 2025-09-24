@@ -2,6 +2,7 @@ import { h, Fragment } from 'preact';
 import { Modal, Setting } from 'obsidian';
 import { render } from 'preact';
 import { DEFAULT_INTERRUPT_REASONS } from '../Settings';
+import { t } from '../lang/helpers';
 
 interface StopReasonProps {
   reasons: string[];
@@ -15,7 +16,7 @@ function StopReasonPanel({ reasons, onSelect, onAddReason, onClose }: StopReason
   return (
     <Fragment>
       <div className="kanban-plugin__stop-reason-panel">
-        <h2 style={{ marginTop: 0 }}>Why did you stop?</h2>
+        <h2 style={{ marginTop: 0 }}>{t('Why did you stop?')}</h2>
         <div className="kanban-plugin__stop-reason-list">
           {reasons.map((reason) => (
             <button
@@ -35,7 +36,7 @@ function StopReasonPanel({ reasons, onSelect, onAddReason, onClose }: StopReason
             }}
             className="kanban-plugin__stop-reason-item kanban-plugin__stop-reason-add"
           >
-            Add new reason...
+            {t('Add new reason...')}
           </button>
         </div>
       </div>
@@ -56,10 +57,10 @@ class NewReasonPrompt extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl('h2', { text: 'Add new interrupt reason' });
+    contentEl.createEl('h2', { text: t('Add new interrupt reason') });
 
     new Setting(contentEl)
-      .setName('Reason')
+      .setName(t('Reason'))
       .addText((text) => {
         this.inputEl = text.inputEl;
         text.inputEl.focus();
@@ -68,7 +69,7 @@ class NewReasonPrompt extends Modal {
     new Setting(contentEl)
       .addButton((btn) =>
         btn
-          .setButtonText('Cancel')
+          .setButtonText(t('Cancel'))
           .setCta()
           .onClick(() => {
             this.close();
@@ -77,7 +78,7 @@ class NewReasonPrompt extends Modal {
       )
       .addButton((btn) =>
         btn
-          .setButtonText('Save')
+          .setButtonText(t('Save'))
           .setCta()
           .onClick(() => {
             const val = this.inputEl.value.trim();

@@ -4,6 +4,7 @@ import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { TimerManager } from '../TimerManager';
 import moment from 'moment';
+import { t } from '../lang/helpers';
 
 function formatTime(ms: number) {
   const totalSec = Math.floor(ms / 1000);
@@ -128,27 +129,27 @@ function TimerPanel({ timer, boardStateManager, onClose }: Props) {
 
   return (
     <div className="kanban-timer-panel">
-      <h2 className="kanban-timer-panel__title">{isPomodoro ? 'Pomodoro' : isBreak ? 'Break' : 'Stopwatch'}</h2>
+      <h2 className="kanban-timer-panel__title">{isPomodoro ? t('Pomodoro') : isBreak ? t('Break') : t('Stopwatch')}</h2>
 
       <div className="kanban-timer-panel__time-row">
         <div className="kanban-timer-panel__time-digits">{timeStr}</div>
         <button className={`kanban-btn kanban-btn--primary`} onClick={toggle}>
-          {isRunning ? (isBreak ? 'Skip' : 'Stop') : 'Start'}
+          {isRunning ? (isBreak ? t('Skip') : t('Stop')) : t('Start')}
         </button>
       </div>
 
       {targetTitle && (
         <div className="kanban-timer-panel__current" title={targetTitle}>
-          <span className="kanban-timer-panel__current-label">当前卡片</span>
+          <span className="kanban-timer-panel__current-label">{t('Current card')}</span>
           <span className="kanban-timer-panel__current-pill">{targetTitle}</span>
         </div>
       )}
 
       {/* Logs header */}
       <div className="kanban-timer-panel__summary">
-        <span>TODAY</span>
+        <span>{t('TODAY')}</span>
         <span className="kanban-timer-panel__pill">{totalStr}</span>
-        <span className="kanban-timer-panel__pill">{pomodoroCount} Pomodoro{pomodoroCount !== 1 ? 's' : ''}</span>
+        <span className="kanban-timer-panel__pill">{pomodoroCount} {pomodoroCount !== 1 ? t('Pomodoros') : t('Pomodoro')}</span>
       </div>
 
       {/* Session blocks */}

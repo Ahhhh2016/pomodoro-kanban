@@ -286,6 +286,45 @@ const en = {
   'Customize the reasons shown when stopping the timer.': 'Customize the reasons shown when stopping the timer.',
   'Reason': 'Reason',
   'Add': 'Add',
+
+  // TimerManager.ts
+  'Select a card to start working': 'Select a card to start working',
+  'Break over!': 'Break over!',
+  'Auto-starting pomodoro': 'Auto-starting pomodoro',
+  'Completed automatic pomodoro rounds!': 'Completed automatic pomodoro rounds!',
+  'Break skipped': 'Break skipped',
+  'Sessions shorter than 1 minute are not recorded.': 'Sessions shorter than 1 minute are not recorded.',
+  'Timer stopped:': 'Timer stopped:',
+  'Why did you stop?': 'Why did you stop?',
+  'Add new reason...': 'Add new reason...',
+  'Add new interrupt reason': 'Add new interrupt reason',
+
+  // TimerMenu.ts
+  'Switch to this card': 'Switch to this card',
+  'Start pomodoro': 'Start pomodoro',
+  'Stop pomodoro': 'Stop pomodoro',
+  'Start stopwatch': 'Start stopwatch',
+  'Stop stopwatch': 'Stop stopwatch',
+  'Stop timer': 'Stop timer',
+  'Add due date': 'Add due date',
+  'Change due date': 'Change due date',
+  'Delete due date': 'Delete due date',
+  'Add estimate time': 'Add estimate time',
+  'Modify estimate time': 'Modify estimate time',
+  'Delete estimate time': 'Delete estimate time',
+
+  // TimerPanelModal.tsx
+  'Break': 'Break',
+  'Stopwatch': 'Stopwatch',
+  'Stop': 'Stop',
+  'Skip': 'Skip',
+  'Current card': 'Current card',
+  'TODAY': 'TODAY',
+  'Pomodoros': 'Pomodoros',
+
+  // helpers.ts
+  'Hours': 'Hours',
+  'Minutes': 'Minutes',
 };
 
 export type Lang = typeof en;

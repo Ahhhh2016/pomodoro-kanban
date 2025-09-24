@@ -13,6 +13,7 @@ import { getDefaultLocale } from '../Editor/datePickerLocale';
 import flatpickr from '../Editor/flatpickr';
 import { Instance } from '../Editor/flatpickr/types/instance';
 import { c, escapeRegExpStr } from '../helpers';
+import { t } from '../../lang/helpers';
 
 export function constructDatePicker(
   win: Window,
@@ -773,13 +774,13 @@ export function constructEstimateTimeInput({
 
         // Title
         div.createEl('h3', { 
-          text: hasEstimateTime ? '修改预估时间' : '添加预估时间',
+          text: hasEstimateTime ? t('Modify estimate time') : t('Add estimate time'),
           cls: 'modal-title'
         });
 
         // Hours input
         const hoursContainer = div.createDiv({ cls: 'input-container' });
-        hoursContainer.createEl('label', { text: '小时:', cls: 'input-label' });
+        hoursContainer.createEl('label', { text: t('Hours') + ':', cls: 'input-label' });
         const hoursInput = hoursContainer.createEl('input', {
           type: 'number',
           value: hasEstimateTime && item.data.metadata.estimatetime 
@@ -792,7 +793,7 @@ export function constructEstimateTimeInput({
 
         // Minutes input
         const minutesContainer = div.createDiv({ cls: 'input-container' });
-        minutesContainer.createEl('label', { text: '分钟:', cls: 'input-label' });
+        minutesContainer.createEl('label', { text: t('Minutes') + ':', cls: 'input-label' });
         const minutesInput = minutesContainer.createEl('input', {
           type: 'number',
           value: hasEstimateTime && item.data.metadata.estimatetime 
@@ -807,18 +808,18 @@ export function constructEstimateTimeInput({
         const buttonsContainer = div.createDiv({ cls: 'buttons-container' });
         
         const saveButton = buttonsContainer.createEl('button', {
-          text: '保存',
+          text: t('Save'),
           cls: 'mod-cta'
         });
 
         const cancelButton = buttonsContainer.createEl('button', {
-          text: '取消',
+          text: t('Cancel'),
           cls: 'mod-secondary'
         });
 
         if (hasEstimateTime) {
           const deleteButton = buttonsContainer.createEl('button', {
-            text: '删除',
+            text: t('Delete'),
             cls: 'mod-warning'
           });
 

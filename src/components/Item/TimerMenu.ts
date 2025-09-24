@@ -5,6 +5,7 @@ import { constructDatePicker, constructMenuDueDatePickerOnChange, deleteDueDate,
 import { StateManager } from '../../StateManager';
 import { BoardModifiers } from '../../helpers/boardModifiers';
 import { Path } from '../../dnd/types';
+import { t } from '../../lang/helpers';
 
 export function useTimerMenu(
   item: Item, 
@@ -32,7 +33,7 @@ export function useTimerMenu(
         .addItem((mi) =>
           mi
             .setIcon('lucide-arrow-right')
-            .setTitle('切换到此卡片')
+            .setTitle(t('Switch to this card'))
             .onClick(() => timerManager.toggle(timerManager.state.mode, item.id))
         )
 
@@ -44,7 +45,7 @@ export function useTimerMenu(
       menu.addItem((mi) => {
         mi
           .setIcon('lucide-calendar')
-          .setTitle(hasDueDate ? '更改截止日期' : '添加截止日期')
+          .setTitle(hasDueDate ? t('Change due date') : t('Add due date'))
           .onClick(() => {
             constructDatePicker(
               e.view,
@@ -68,7 +69,7 @@ export function useTimerMenu(
         menu.addItem((mi) =>
           mi
             .setIcon('lucide-trash-2')
-            .setTitle('删除截止日期')
+            .setTitle(t('Delete due date'))
             .onClick(() => {
               deleteDueDate({
                 stateManager,
@@ -85,7 +86,7 @@ export function useTimerMenu(
         const hasEstimate = hasEstimateTime();
         mi
           .setIcon('lucide-clock')
-          .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+          .setTitle(hasEstimate ? t('Modify estimate time') : t('Add estimate time'))
           .onClick(() => {
             constructEstimateTimeInput({
               stateManager,
@@ -103,7 +104,7 @@ export function useTimerMenu(
         menu.addItem((mi) =>
           mi
             .setIcon('lucide-trash-2')
-            .setTitle('删除预估时间')
+            .setTitle(t('Delete estimate time'))
             .onClick(() => {
               deleteEstimateTime({
                 stateManager,
@@ -125,7 +126,7 @@ export function useTimerMenu(
         .addItem((mi) =>
           mi
             .setIcon('lucide-stop-circle')
-            .setTitle('停止计时')
+            .setTitle(t('Stop timer'))
             .onClick(() => timerManager.stop())
         );
 
@@ -137,7 +138,7 @@ export function useTimerMenu(
       menu.addItem((mi) => {
         mi
           .setIcon('lucide-calendar')
-          .setTitle(hasDueDate ? '更改截止日期' : '添加截止日期')
+          .setTitle(hasDueDate ? t('Change due date') : t('Add due date'))
           .onClick(() => {
             constructDatePicker(
               e.view,
@@ -161,7 +162,7 @@ export function useTimerMenu(
         menu.addItem((mi) =>
           mi
             .setIcon('lucide-trash-2')
-            .setTitle('删除截止日期')
+            .setTitle(t('Delete due date'))
             .onClick(() => {
               deleteDueDate({
                 stateManager,
@@ -178,7 +179,7 @@ export function useTimerMenu(
         const hasEstimate = hasEstimateTime();
         mi
           .setIcon('lucide-clock')
-          .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+          .setTitle(hasEstimate ? t('Modify estimate time') : t('Add estimate time'))
           .onClick(() => {
             constructEstimateTimeInput({
               stateManager,
@@ -196,7 +197,7 @@ export function useTimerMenu(
         menu.addItem((mi) =>
           mi
             .setIcon('lucide-trash-2')
-            .setTitle('删除预估时间')
+            .setTitle(t('Delete estimate time'))
             .onClick(() => {
               deleteEstimateTime({
                 stateManager,
@@ -222,13 +223,13 @@ export function useTimerMenu(
       .addItem((mi) =>
         mi
           .setIcon('lucide-timer')
-          .setTitle(isPomodoroRunning ? '停止番茄钟' : '开始番茄钟')
+          .setTitle(isPomodoroRunning ? t('Stop pomodoro') : t('Start pomodoro'))
           .onClick(() => timerManager.toggle('pomodoro', item.id))
       )
       .addItem((mi) =>
         mi
           .setIcon('lucide-clock')
-          .setTitle(isStopwatchRunning ? '停止秒表' : '开始秒表')
+          .setTitle(isStopwatchRunning ? t('Stop stopwatch') : t('Start stopwatch'))
           .onClick(() => timerManager.toggle('stopwatch', item.id))
       )
       .addItem((mi) => {
@@ -239,7 +240,7 @@ export function useTimerMenu(
         
         mi
           .setIcon('lucide-calendar')
-          .setTitle(hasDueDate ? '更改截止日期' : '添加截止日期')
+          .setTitle(hasDueDate ? t('Change due date') : t('Add due date'))
           .onClick(() => {
             constructDatePicker(
               e.view,
@@ -267,7 +268,7 @@ export function useTimerMenu(
       menu.addItem((mi) =>
         mi
           .setIcon('lucide-trash-2')
-          .setTitle('删除截止日期')
+          .setTitle(t('Delete due date'))
           .onClick(() => {
             deleteDueDate({
               stateManager,
@@ -284,7 +285,7 @@ export function useTimerMenu(
       const hasEstimate = hasEstimateTime();
       mi
         .setIcon('lucide-clock')
-        .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+        .setTitle(hasEstimate ? t('Modify estimate time') : t('Add estimate time'))
         .onClick(() => {
           constructEstimateTimeInput({
             stateManager,
@@ -302,7 +303,7 @@ export function useTimerMenu(
       menu.addItem((mi) =>
         mi
           .setIcon('lucide-trash-2')
-          .setTitle('删除预估时间')
+          .setTitle(t('Delete estimate time'))
           .onClick(() => {
             deleteEstimateTime({
               stateManager,

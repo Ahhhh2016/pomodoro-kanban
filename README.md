@@ -16,7 +16,7 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Break Timer**: Automatic short (5min) and long (15min) breaks
 - **Auto Pomodoro Rounds**: Set automatic pomodoro rounds that continue after breaks (configurable)
 - **Quick Stop**: If you stop a timer within 1 minute, it won't ask for a reason and won't be logged
-- **Time Logging**: Automatic logging of work sessions to card markdown
+- **Time Logging**: Automatic logging of work sessions to card markdown in simple text format
 - **Interrupt Tracking**: Track why you stopped a session (for sessions longer than 1 minute)
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
@@ -211,6 +211,24 @@ When "Hide timelog in cards" is enabled, the plugin provides comprehensive hidin
 
 This provides a completely clean editing experience when timelog information is hidden, while still preserving all data in the markdown source. The filtering only affects the visual display and editing interface, not the underlying data storage.
 
+## Timelog Format Update
+
+The plugin now uses a simplified text format for timelog entries instead of the previous time picker format:
+
+### New Format
+- **Simple Text Format**: `++ 2024-01-15 10:00 – 10:25 (25 m)`
+- **Clean and Readable**: Easy to read and edit manually if needed
+- **Backward Compatible**: The plugin can still parse existing timelog entries in the old format
+
+### Benefits
+- **Simplified Display**: No more complex time picker syntax in markdown
+- **Better Readability**: Clear, human-readable time format
+- **Easier Editing**: Users can manually edit timelog entries if needed
+- **Consistent Parsing**: More reliable parsing of timelog data
+
+### Focus Time Calculation
+The focus time calculation has been updated to work with the new text format while maintaining full compatibility with existing data. The total focused time is calculated by summing all logged sessions for each card.
+
 ## Recent Improvements
 
 ### Due Date Duplication Fix
@@ -299,6 +317,41 @@ This provides a completely clean editing experience when timelog information is 
 - **Accurate State Detection**: Fixed logic to properly detect when a card is actively being timed vs. when no timer is running
 - **Improved User Experience**: Users will no longer see confusing "stop" options on cards that aren't currently being timed
 - **Consistent Behavior**: Timer menu options now accurately reflect the actual timing state of each individual card
+
+## Internationalization (i18n) Support
+
+The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.
+
+### Features
+- **Automatic Language Detection**: The plugin automatically detects the user's Obsidian language setting and displays the interface in the appropriate language
+- **Complete Timer Interface Translation**: All timer-related interface elements are now fully translated, including:
+  - Timer menu options (Start/Stop Pomodoro, Start/Stop Stopwatch, etc.)
+  - Due date management (Add/Change/Delete Due Date)
+  - Estimate time management (Add/Modify/Delete Estimate Time)
+  - Timer notifications and messages
+  - Stop reason modal interface
+  - Timer panel modal interface
+- **Consistent User Experience**: No more mixed Chinese and English text in the interface
+- **Fallback Support**: If a translation is missing, the plugin falls back to English
+
+### Supported Languages
+- **English (en)**: Default language with complete translations
+- **Simplified Chinese (zh-cn)**: Complete Chinese translations for all timer features
+- **Traditional Chinese (zh-tw)**: Inherits from Simplified Chinese
+- **Other Languages**: The plugin supports all languages that Obsidian supports, with English fallback
+
+### How It Works
+The plugin uses Obsidian's built-in language detection system:
+1. Reads the user's language setting from `window.localStorage.getItem('language')`
+2. Maps the language code to the appropriate translation file
+3. Uses the `t()` function to translate all user-facing text
+4. Falls back to English if a translation is not available
+
+### Technical Implementation
+- **Translation Keys**: All user-facing text now uses translation keys instead of hardcoded strings
+- **Type Safety**: Translation keys are type-checked to ensure all required translations exist
+- **Performance**: Translations are loaded once and cached for optimal performance
+- **Maintainability**: Easy to add new languages by creating new translation files
 
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)

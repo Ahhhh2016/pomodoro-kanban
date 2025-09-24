@@ -199,6 +199,45 @@ const lang: Partial<Lang> = {
   'Customize the reasons shown when stopping the timer.': '自定义停止计时器时显示的原因。',
   'Reason': '原因',
   'Add': '添加',
+
+  // TimerManager.ts
+  'Select a card to start working': '请选择一张卡片开始工作',
+  'Break over!': '休息结束！',
+  'Auto-starting pomodoro': '自动开始番茄钟',
+  'Completed automatic pomodoro rounds!': '完成了自动番茄钟轮次！',
+  'Break skipped': '跳过休息',
+  'Sessions shorter than 1 minute are not recorded.': '少于1分钟的会话不会被记录。',
+  'Timer stopped:': '计时器已停止：',
+  'Why did you stop?': '为什么停止？',
+  'Add new reason...': '添加新原因...',
+  'Add new interrupt reason': '添加新的中断原因',
+
+  // TimerMenu.ts
+  'Switch to this card': '切换到此卡片',
+  'Start pomodoro': '开始番茄钟',
+  'Stop pomodoro': '停止番茄钟',
+  'Start stopwatch': '开始秒表',
+  'Stop stopwatch': '停止秒表',
+  'Stop timer': '停止计时',
+  'Add due date': '添加截止日期',
+  'Change due date': '更改截止日期',
+  'Delete due date': '删除截止日期',
+  'Add estimate time': '添加预估时间',
+  'Modify estimate time': '修改预估时间',
+  'Delete estimate time': '删除预估时间',
+
+  // TimerPanelModal.tsx
+  'Break': '休息',
+  'Stopwatch': '秒表',
+  'Stop': '停止',
+  'Skip': '跳过',
+  'Current card': '当前卡片',
+  'TODAY': '今日',
+  'Pomodoros': '番茄钟',
+
+  // helpers.ts
+  'Hours': '小时',
+  'Minutes': '分钟',
 };
 
 export default lang;
