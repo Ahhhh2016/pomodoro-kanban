@@ -236,6 +236,12 @@ The focus time calculation has been updated to work with the new text format whi
 - **Icon Registration**: Added custom icon registration using Obsidian's `addIcon` API to register the tomato.svg icon
 - **Conflict Resolution**: This change ensures that both pomodoro-kanban and obsidian-kanban plugins can be installed simultaneously without icon conflicts
 
+### Enhanced File Context Menu
+- **Dual Menu Options**: Added both "New kanban board" and "New pomodoro kanban board" options in the Files area right-click context menu
+- **Clear Differentiation**: Users can now easily distinguish between creating a regular kanban board and a pomodoro-enhanced kanban board
+- **Custom Tomato Icon**: The pomodoro kanban board option uses the custom tomato icon for visual distinction
+- **Internationalization Support**: Both menu options are fully translated in Chinese and English
+
 ### Due Date Duplication Fix
 - **Prevented Duplicate Due Dates**: Fixed an issue where users could accidentally add multiple due dates to the same card
 - **Smart Replacement Logic**: When setting a new due date, all existing due dates are automatically removed to prevent duplicates

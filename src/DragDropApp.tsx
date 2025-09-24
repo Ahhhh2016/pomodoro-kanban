@@ -285,6 +285,7 @@ export function DragDropApp({ win, plugin }: { win: Window; plugin: KanbanPlugin
                   stateManager,
                   boardModifiers,
                   filePath,
+                  timerManager: plugin.timerManager,
                 },
               ];
             }, [entity]);

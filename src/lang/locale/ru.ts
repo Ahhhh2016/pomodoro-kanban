@@ -105,7 +105,7 @@ const lang: Partial<Lang> = {
   'This will be used to separate the archived date/time from the title':
     'Будет использоваться для отделения даты/времени архивирования от заголовка',
   'Archive date/time format': 'Формат даты/времени архивирования',
-  'Kanban Plugin': 'Плагин Kanban',
+  'Pomodoro Kanban Plugin': 'Плагин Pomodoro Kanban',
   'Tag colors': 'Показывать цвета меток',
   'Set colors for tags displayed in cards.': 'Установить цвета для меток под заголовками карточек.',
   'Linked Page Metadata': 'Метаданные связанных страниц',

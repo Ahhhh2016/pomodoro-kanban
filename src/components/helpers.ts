@@ -119,7 +119,7 @@ export async function applyTemplate(stateManager: StateManager, templatePath?: s
     : null;
 
   if (templateFile && templateFile instanceof TFile) {
-    const activeView = app.workspace.getActiveViewOfType(MarkdownView);
+    const activeView = (window as any).app.workspace.getActiveViewOfType(MarkdownView);
 
     try {
       // Force the view to source mode, if needed

@@ -10,6 +10,7 @@ const en = {
   'Error: cannot create Kanban, the current note is not empty':
     'Error: cannot create Kanban, the current note is not empty',
   'New kanban board': 'New kanban board',
+  'New pomodoro kanban board': 'New pomodoro kanban board',
   'Untitled Kanban': 'Untitled Kanban',
   'Toggle between Kanban and markdown mode': 'Toggle between Kanban and markdown mode',
 
@@ -136,7 +137,7 @@ const en = {
   'This will be used to separate the archived date/time from the title':
     'This will be used to separate the archived date/time from the title',
   'Archive date/time format': 'Archive date/time format',
-  'Kanban Plugin': 'Kanban Plugin',
+  'Pomodoro Kanban Plugin': 'Pomodoro Kanban Plugin',
   'Tag click action': 'Tag click action',
   'Search Kanban Board': 'Search Kanban Board',
   'Search Obsidian Vault': 'Search Obsidian Vault',

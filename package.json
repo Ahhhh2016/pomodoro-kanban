@@ -1,6 +1,6 @@
 {
   "name": "pomodoro-kanban",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Pomodoro enhanced Kanban plugin for Obsidian",
   "main": "main.js",
   "scripts": {

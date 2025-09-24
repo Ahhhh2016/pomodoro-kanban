@@ -29,7 +29,7 @@ export function gotoPrevDailyNote(app: App, file: TFile) {
 
 export function buildLinkToDailyNote(app: App, dateStr: string) {
   const dailyNoteSettings = getDailyNoteSettings();
-  const shouldUseMarkdownLinks = !!(app.vault as any).getConfig('useMarkdownLinks');
+  const shouldUseMarkdownLinks = !!((window as any).app.vault as any).getConfig('useMarkdownLinks');
 
   if (shouldUseMarkdownLinks) {
     return `[${dateStr}](${
@@ -58,7 +58,7 @@ export function hasFrontmatterKeyRaw(data: string) {
 
 export function hasFrontmatterKey(file: TFile) {
   if (!file) return false;
-  const cache = app.metadataCache.getFileCache(file);
+  const cache = (window as any).app.metadataCache.getFileCache(file);
   return !!cache?.frontmatter?.[frontmatterKey];
 }
 

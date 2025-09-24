@@ -123,6 +123,10 @@ export interface KanbanSettings {
   'timer-enable-sounds'?: boolean;
   /** Volume percentage (0-100) for sounds */
   'timer-sound-volume'?: number;
+  /** Custom sound file path for timer notifications */
+  'timer-sound-file'?: string;
+  /** Show timelog entries */
+  'show-timelog'?: boolean;
 }
 
 export interface KanbanViewSettings {
@@ -181,6 +185,8 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'timer-interrupts',
   'timer-enable-sounds',
   'timer-sound-volume',
+  'timer-sound-file',
+  'show-timelog',
 ]);
 
 export type SettingRetriever = <K extends keyof KanbanSettings>(
@@ -1846,6 +1852,6 @@ export class KanbanSettingsTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.addClass(c('board-settings-modal'));
 
-    this.settingsManager.constructUI(containerEl, t('Kanban Plugin'), false);
+    this.settingsManager.constructUI(containerEl, t('Pomodoro Kanban Plugin'), false);
   }
 }

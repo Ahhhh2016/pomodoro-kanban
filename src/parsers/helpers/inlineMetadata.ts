@@ -169,15 +169,15 @@ export function iconToPriority(icon: string) {
 }
 
 export function getTasksPlugin() {
-  if (!(app as any).plugins.enabledPlugins.has('obsidian-tasks-plugin')) {
+  if (!((window as any).app as any).plugins.enabledPlugins.has('obsidian-tasks-plugin')) {
     return null;
   }
 
-  return (app as any).plugins.plugins['obsidian-tasks-plugin'];
+  return ((window as any).app as any).plugins.plugins['obsidian-tasks-plugin'];
 }
 
 function getTasksPluginSettings() {
-  return (app as any).workspace.editorSuggest.suggests.find(
+  return ((window as any).app as any).workspace.editorSuggest.suggests.find(
     (s: any) => s.settings && s.settings.taskFormat
   )?.settings;
 }
@@ -453,9 +453,9 @@ export function extractInlineFields(
 }
 
 export function getDataviewPlugin() {
-  if (!(app as any).plugins.enabledPlugins.has('dataview')) {
+  if (!((window as any).app as any).plugins.enabledPlugins.has('dataview')) {
     return null;
   }
 
-  return (app as any).plugins.plugins['dataview'];
+  return ((window as any).app as any).plugins.plugins['dataview'];
 }
