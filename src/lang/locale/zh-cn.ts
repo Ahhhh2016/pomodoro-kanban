@@ -11,7 +11,7 @@ const lang: Partial<Lang> = {
   'Error: cannot create Kanban, the current note is not empty':
     '错误：无法转换当前文件，当前笔记不是空白笔记',
   'New kanban board': '新看板',
-  'New pomodoro kanban board': '新番茄钟看板',
+  'New pomodoro kanban board': '新番茄看板',
   'Untitled Kanban': '未命名看板',
   'Toggle between Kanban and markdown mode': '在看板和 Markdown 模式之间进行切换',
 
@@ -101,7 +101,7 @@ const lang: Partial<Lang> = {
   'This will be used to separate the archived date/time from the title':
     '用于分隔标题与归档卡片的日期或时间',
   'Archive date/time format': '归档日期或时间格式',
-  'Pomodoro Kanban Plugin': '番茄钟看板插件',
+  'Pomodoro Kanban Plugin': '番茄看板插件',
   'Linked Page Metadata': '连接的页面元数据',
   'Display metadata for the first note linked within a card. Specify which metadata keys to display below. An optional label can be provided, and labels can be hidden altogether.':
     '展示卡片中第一个连接所对应的笔记元数据。请在下方指定哪些元数据可以展示。你可以选择展示哪些标志，所有标志都可以被隐藏。',
