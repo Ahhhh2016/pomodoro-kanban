@@ -246,6 +246,12 @@ The plugin provides flexible control over how timelog entries are displayed:
   - When no timer is running
 - **Workflow Continuity**: Allows users to adjust deadlines while maintaining focus on their current task
 
+### Timer Menu Logic Optimization
+- **Smart Stop Options**: Timer menu now only shows "停止计时" (Stop Timer) options when the specific card is actually being timed
+- **Accurate State Detection**: Fixed logic to properly detect when a card is actively being timed vs. when no timer is running
+- **Improved User Experience**: Users will no longer see confusing "stop" options on cards that aren't currently being timed
+- **Consistent Behavior**: Timer menu options now accurately reflect the actual timing state of each individual card
+
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)
 

@@ -28,12 +28,6 @@ export function useTimerMenu(
             .setTitle('切换到此卡片')
             .onClick(() => timerManager.toggle(timerManager.state.mode, item.id))
         )
-        .addItem((mi) =>
-          mi
-            .setIcon('lucide-stop-circle')
-            .setTitle('停止计时')
-            .onClick(() => timerManager.stop())
-        );
 
       // Add due date options even when timer is running on different card
       const hasDueDateInMetadata = !!item.data.metadata.duedate;
@@ -142,8 +136,10 @@ export function useTimerMenu(
     }
 
     // Default: not running => allow starting pomodoro or stopwatch
-    const isPomodoroRunning = timerManager.isRunning('pomodoro', item.id);
-    const isStopwatchRunning = timerManager.isRunning('stopwatch', item.id);
+    // Only show stop options if this specific card is actually being timed
+    const isThisCardBeingTimed = timerManager.state.running && timerManager.state.targetCardId === item.id;
+    const isPomodoroRunning = isThisCardBeingTimed && timerManager.state.mode === 'pomodoro';
+    const isStopwatchRunning = isThisCardBeingTimed && timerManager.state.mode === 'stopwatch';
 
     menu
       .addItem((mi) =>
