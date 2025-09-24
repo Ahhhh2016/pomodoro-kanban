@@ -21,7 +21,7 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Sound Notifications**: Audio alerts when sessions complete
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
 - **Timelog Display Control**: Option to hide timelog entries in card view while keeping them visible in markdown view
-- **Due Date Management**: Set due dates for tasks with visual indicators (red, bold text) displayed at the bottom right of cards
+- **Due Date Management**: Set due dates for tasks with visual indicators (red, bold text) displayed on the right side of the focused time line
 
 ## Auto Pomodoro Rounds Feature
 
@@ -128,7 +128,7 @@ The plugin now includes comprehensive due date functionality to help you track t
 ### Features
 - **Easy Due Date Setting**: Access due date picker through the timer menu (right-click on timer button)
 - **Single Due Date Per Card**: Each card can only have one due date - existing due dates are replaced when setting a new one
-- **Visual Indicators**: Due dates are displayed in red, bold text at the bottom right of cards
+- **Visual Indicators**: Due dates are displayed in red, bold text on the right side of the focused time line
 - **Flexible Format**: Supports both regular date format and daily note linking
 - **Click to Edit**: Click on any due date to modify or remove it
 - **Markdown Integration**: Due dates are stored as `due:@2024-01-15` format in the card markdown
@@ -140,7 +140,7 @@ The plugin now includes comprehensive due date functionality to help you track t
    - "更改截止日期" (Change Due Date) - when a due date already exists
 3. **Date Picker**: Choose your desired due date from the calendar popup
 4. **Time Picker**: After selecting the date, a time picker will automatically appear to set the specific time
-5. **Visual Display**: The due date and time will appear in red, bold text at the bottom right of the card
+5. **Visual Display**: The due date and time will appear in red, bold text on the right side of the focused time line
 6. **Edit Due Date**: Click on the displayed due date to modify both date and time
 7. **Replace Due Date**: Setting a new due date will automatically replace any existing due date and time
 8. **Remove Due Date**: Use the date picker to clear the due date
@@ -151,7 +151,7 @@ Due dates and times are stored in the card's markdown content using the format:
 - `due:@2024-01-15 due:@14:30` for dates with specific times
 - `due:@[[2024-01-15]]` for daily note links (if enabled in settings)
 
-This ensures due dates and times are preserved when viewing the raw markdown and can be easily searched or processed by other plugins.
+**Note**: While due dates are stored in the markdown content for data persistence, they are no longer displayed in the card's content area. Instead, they appear exclusively in the focused time line for better visual organization.
 
 ## Timelog Display Control
 
@@ -199,6 +199,41 @@ The plugin provides flexible control over how timelog entries are displayed:
 
 ### UI Consistency Fixes
 - **Button Size Consistency**: Fixed timer button and menu button size inconsistency on hover. Both buttons now maintain the same size when hovered, providing a more consistent user experience.
+
+### Due Date Display Optimization
+- **Improved Due Date Positioning**: Due dates are now displayed exclusively on the right side of the focused time line, completely removed from markdown content display
+- **Cleaner Card Layout**: This change eliminates due date duplication and creates a more streamlined card appearance
+- **Better Information Hierarchy**: Due dates are now grouped with timing information, making it easier to see both focused time and deadlines at a glance
+- **Markdown Content Cleanup**: Due date information is no longer displayed in the card's markdown content, keeping the content area clean and focused on the actual task description
+- **Independent Display Logic**: Due dates in the focused time line are now independent of the "move-dates" setting, ensuring they always display when present
+
+### Debug Information for Due Date Issues
+- **Comprehensive Debug Logging**: Added detailed console logging throughout the due date processing pipeline to help diagnose display issues
+- **DueDate Component Debug**: Logs due date data, formatting settings, and rendering decisions
+- **Item Component Debug**: Logs focused time line rendering logic and due date display conditions
+- **Parser Debug**: Logs markdown parsing process for due date extensions and AST generation
+- **Hydration Debug**: Logs due date string parsing and moment.js conversion process
+- **List Processing Debug**: Logs due date extraction from AST nodes to item metadata
+- **Debug Usage**: Open browser developer console to view detailed debug information when due dates are not displaying correctly
+- **Debug Guide**: See `DEBUG_DUEDATE.md` for detailed instructions on how to use the debug information to troubleshoot due date display issues
+
+### Due Date Data Flow Fix
+- **Fixed Data Mapping Issue**: Resolved issue where duedate data was not being properly mapped from AST nodes to item metadata
+- **Compatibility Layer**: Added compatibility mapping to store duedate data in both `node.duedate` and `node.date` properties
+- **Enhanced Debug Logging**: Added detailed logging in list processing to track data extraction from AST nodes
+- **Root Cause**: The issue was that duedate data was stored in `node.duedate` during parsing but the list processor expected it in `node.date` (DateNode interface)
+
+### Due Time Data Flow Fix
+- **Fixed Due Time Mapping Issue**: Resolved the same data mapping issue for duetime that was affecting duedate
+- **Compatibility Layer**: Added compatibility mapping to store duetime data in both `node.duetime` and `node.time` properties
+- **Complete Due Date/Time Support**: Both due date and due time now display correctly in the focused time line
+- **Consistent Data Flow**: Due time follows the same data flow pattern as due date for reliable processing
+
+### Due Date Display Format Enhancement
+- **Enhanced Visual Format**: Due dates now display with "! Due: " prefix for better visibility and urgency indication
+- **Improved Spacing**: Added right padding (8px) to due date display for better visual separation
+- **Clear Identification**: The exclamation mark and "Due:" label make due dates easily distinguishable from other metadata
+- **Consistent Styling**: Maintains red color and bold font weight for high visibility
 
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)

@@ -93,36 +93,38 @@ export function preprocessTitle(stateManager: StateManager, title: string) {
     }
   );
 
-  // Handle due date
+  // Handle due date - remove from markdown content display (now only shown in focused time line)
   title = title.replace(
     new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'g'),
     (match, space, content) => {
-      const parsed = moment(content, dateFormat);
-      if (!parsed.isValid()) return match;
-      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duedate-wrapper'));
-      return `${space}<span data-duedate="${parsed.toISOString()}" class="${wrapperClass} ${c('duedate')} ${c('preview-duedate')}"${wrapperStyle}><span class="${c('item-metadata-duedate')}" style="color: red; font-weight: bold;">${parsed.format(dateDisplayFormat)}</span></span>`;
+      // Remove due date from markdown content display - it's now only shown in focused time line
+      return space;
     }
   );
 
   title = title.replace(
     new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'g'),
     (match, space, content) => {
-      const parsed = moment(content, dateFormat);
-      if (!parsed.isValid()) return match;
-      const linkPath = app.metadataCache.getFirstLinkpathDest(content, stateManager.file.path);
-      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duedate-wrapper'));
-      return `${space}<span data-duedate="${parsed.toISOString()}" class="${wrapperClass} ${c('duedate')} ${c('preview-duedate-link')}"${wrapperStyle}><a class="${c('preview-duedate')} internal-link" data-href="${linkPath?.path ?? content}" href="${linkPath?.path ?? content}" target="_blank" rel="noopener" style="color: red; font-weight: bold;">${parsed.format(dateDisplayFormat)}</a></span>`;
+      // Remove due date from markdown content display - it's now only shown in focused time line
+      return space;
     }
   );
 
-  // Handle due time
+  // Handle due time - remove from markdown content display (now only shown in focused time line)
   title = title.replace(
     new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
     (match, space, content) => {
-      const parsed = moment(content, timeFormat);
-      if (!parsed.isValid()) return match;
-      const { wrapperClass, wrapperStyle } = getWrapperStyles(c('preview-duetime-wrapper'));
-      return `${space}<span data-duetime="${parsed.toISOString()}" class="${wrapperClass} ${c('duetime')} ${c('preview-duetime')}"${wrapperStyle}><span class="${c('item-metadata-duetime')}" style="color: red; font-weight: bold;">${parsed.format(timeFormat)}</span></span>`;
+      // Remove due time from markdown content display - it's now only shown in focused time line
+      return space;
+    }
+  );
+
+  // Handle due time with double trigger (due:@@{time}) - remove from markdown content display
+  title = title.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+    (match, space, content) => {
+      // Remove due time from markdown content display - it's now only shown in focused time line
+      return space;
     }
   );
 
@@ -152,21 +154,54 @@ export function hydrateItem(stateManager: StateManager, item: Item) {
     item.data.metadata.time = time;
   }
 
+  // Debug: Log due date hydration process
+  console.log('hydrateBoard.ts - Due date hydration debug:', {
+    itemId: item.id,
+    duedateStr,
+    duetimeStr,
+    dateFormat: stateManager.getSetting('date-format'),
+    timeFormat: stateManager.getSetting('time-format'),
+    hasDuedateStr: !!duedateStr,
+    hasDuetimeStr: !!duetimeStr
+  });
+
   if (duedateStr) {
-    item.data.metadata.duedate = moment(duedateStr, stateManager.getSetting('date-format'));
+    const parsedDuedate = moment(duedateStr, stateManager.getSetting('date-format'));
+    console.log('hydrateBoard.ts - Parsing duedate:', {
+      duedateStr,
+      parsedDuedate: parsedDuedate.format(),
+      isValid: parsedDuedate.isValid()
+    });
+    item.data.metadata.duedate = parsedDuedate;
   }
 
   if (duetimeStr) {
     let duetime = moment(duetimeStr, stateManager.getSetting('time-format'));
+    console.log('hydrateBoard.ts - Parsing duetime:', {
+      duetimeStr,
+      parsedDuetime: duetime.format(),
+      isValid: duetime.isValid()
+    });
 
     if (item.data.metadata.duedate) {
       duetime.year(item.data.metadata.duedate.year());
       duetime.month(item.data.metadata.duedate.month());
       duetime.date(item.data.metadata.duedate.date());
+      console.log('hydrateBoard.ts - Combined duetime with duedate:', {
+        finalDuetime: duetime.format()
+      });
     }
 
     item.data.metadata.duetime = duetime;
   }
+
+  console.log('hydrateBoard.ts - Final due date metadata:', {
+    itemId: item.id,
+    finalDuedate: item.data.metadata.duedate?.format(),
+    finalDuetime: item.data.metadata.duetime?.format(),
+    hasDuedate: !!item.data.metadata.duedate,
+    hasDuetime: !!item.data.metadata.duetime
+  });
 
   if (fileAccessor) {
     const file = stateManager.app.metadataCache.getFirstLinkpathDest(

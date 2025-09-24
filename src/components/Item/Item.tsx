@@ -17,6 +17,7 @@ import { frontmatterKey } from 'src/parsers/common';
 import { KanbanContext, SearchContext } from '../context';
 import { c } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
+import { constructDatePicker, constructMenuDueDatePickerOnChange } from './helpers';
 import { ItemCheckbox } from './ItemCheckbox';
 import { ItemContent } from './ItemContent';
 import { useItemMenu } from './ItemMenu';
@@ -24,6 +25,7 @@ import { ItemMenuButton } from './ItemMenuButton';
 import { ItemMetadata } from './MetadataTable';
 import { getItemClassModifiers } from './helpers';
 import { ItemTimerButton } from './ItemTimerButton';
+import { DueDate } from './DueDate';
 
 export interface DraggableItemProps {
   item: Item;
@@ -147,19 +149,83 @@ const ItemInner = memo(function ItemInner({
       </div>
       <ItemMetadata searchQuery={isMatch ? searchQuery : undefined} item={item} />
 
-      {/* Focused time line */}
+      {/* Focused time line with due date */}
       {(() => {
         const totalMs = timerManager?.getTotalFocused(item.id) ?? 0;
-        if (totalMs <= 0) return null;
+        const hasFocusedTime = totalMs > 0;
+        const hasDueDate = item.data.metadata.duedate;
+        
+        // Debug: Log focused time line information
+        console.log('Item.tsx - Focused time line debug:', {
+          itemId: item.id,
+          totalMs,
+          hasFocusedTime,
+          hasDueDate,
+          duedate: item.data.metadata.duedate,
+          duetime: item.data.metadata.duetime,
+          duedateStr: item.data.metadata.duedateStr,
+          duetimeStr: item.data.metadata.duetimeStr,
+          itemMetadata: item.data.metadata
+        });
+        
+        // Show this section if either focused time or due date exists
+        if (!hasFocusedTime && !hasDueDate) {
+          console.log('Item.tsx - No focused time or due date, returning null');
+          return null;
+        }
+        
         const hours = Math.floor(totalMs / 3600000);
         const minutes = Math.floor((totalMs % 3600000) / 60000);
-        const str = `${hours ? hours + ' h ' : ''}${minutes} min`;
+        const focusedTimeStr = `${hours ? hours + ' h ' : ''}${minutes} min`;
+        
+        // Due date edit handler
+        const onEditDueDate = (e: MouseEvent) => {
+          constructDatePicker(
+            e.view,
+            stateManager,
+            { x: e.clientX, y: e.clientY },
+            constructMenuDueDatePickerOnChange({
+              stateManager,
+              boardModifiers,
+              item,
+              hasDueDate: true,
+              path,
+            }),
+            item.data.metadata.duedate?.toDate()
+          );
+        };
+        
+        console.log('Item.tsx - Rendering focused time line:', {
+          hasFocusedTime,
+          focusedTimeStr,
+          hasDueDate,
+          willRenderDueDate: hasDueDate
+        });
+
         return (
           <div
             className={c('item-focus-time')}
-            style={{ fontSize: '12px', opacity: 0.6, paddingInlineStart: 8 }}
+            style={{ 
+              fontSize: '12px', 
+              opacity: 0.6, 
+              paddingInlineStart: 8,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
           >
-            Focused: {str}
+            <div>
+              {hasFocusedTime && `Focused: ${focusedTimeStr}`}
+            </div>
+            <div>
+              {hasDueDate && (
+                <DueDate 
+                  item={item} 
+                  stateManager={stateManager} 
+                  onEditDueDate={onEditDueDate}
+                />
+              )}
+            </div>
           </div>
         );
       })()}

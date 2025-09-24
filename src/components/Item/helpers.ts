@@ -301,6 +301,8 @@ export function constructMenuDueDatePickerOnChange({
   // Use global flag to match all due dates, not just the first one
   const dueDateRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger as string)}${contentMatch}`, 'g');
   const dueTimeRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`, 'g');
+  // Also match due:@@{time} format
+  const dueTimeDoubleRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`, 'g');
 
   return (dates: Date[]) => {
     const date = dates[0];
@@ -315,6 +317,7 @@ export function constructMenuDueDatePickerOnChange({
       // Remove ALL existing due dates and times to prevent duplicates
       titleRaw = item.data.titleRaw.replace(dueDateRegEx, '');
       titleRaw = titleRaw.replace(dueTimeRegEx, '');
+      titleRaw = titleRaw.replace(dueTimeDoubleRegEx, '');
       // Clean up any extra spaces that might be left
       titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
       // Add the new due date

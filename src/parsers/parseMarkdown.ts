@@ -71,6 +71,8 @@ function getExtensions(stateManager: StateManager) {
     genericWrappedExtension('duedate', `due:${stateManager.getSetting('date-trigger')}{`, '}'),
     genericWrappedExtension('duedateLink', `due:${stateManager.getSetting('date-trigger')}[[`, ']]'),
     genericWrappedExtension('duetime', `due:${stateManager.getSetting('time-trigger')}{`, '}'),
+    // Support for due:@@{time} format
+    genericWrappedExtension('duetime', `due:${stateManager.getSetting('time-trigger')}${stateManager.getSetting('time-trigger')}{`, '}'),
     genericWrappedExtension('embedWikilink', '![[', ']]'),
     genericWrappedExtension('wikilink', '[[', ']]'),
     tagExtension(),
@@ -95,15 +97,32 @@ function getMdastExtensions(stateManager: StateManager) {
     }),
     genericWrappedFromMarkdown('duedate', (text, node) => {
       if (!text) return;
+      console.log('parseMarkdown.ts - Parsing duedate:', { text, nodeType: node.type });
+      // Store in both duedate and date properties for compatibility
       node.duedate = text;
+      node.date = text;
     }),
     genericWrappedFromMarkdown('duedateLink', (text, node) => {
       if (!text) return;
+      console.log('parseMarkdown.ts - Parsing duedateLink:', { text, nodeType: node.type });
+      // Store in both duedate and date properties for compatibility
       node.duedate = text;
+      node.date = text;
     }),
     genericWrappedFromMarkdown('duetime', (text, node) => {
       if (!text) return;
+      console.log('parseMarkdown.ts - Parsing duetime:', { text, nodeType: node.type });
+      // Store in both duetime and time properties for compatibility
       node.duetime = text;
+      node.time = text;
+    }),
+    // Support for due:@@{time} format
+    genericWrappedFromMarkdown('duetime', (text, node) => {
+      if (!text) return;
+      console.log('parseMarkdown.ts - Parsing duetime (double trigger):', { text, nodeType: node.type });
+      // Store in both duetime and time properties for compatibility
+      node.duetime = text;
+      node.time = text;
     }),
     genericWrappedFromMarkdown('embedWikilink', (text, node) => {
       if (!text) return;
@@ -180,6 +199,13 @@ function getMdastExtensions(stateManager: StateManager) {
 }
 
 export function parseMarkdown(stateManager: StateManager, md: string) {
+  console.log('parseMarkdown.ts - Starting markdown parsing:', {
+    mdLength: md.length,
+    mdPreview: md.substring(0, 200) + (md.length > 200 ? '...' : ''),
+    dateTrigger: stateManager.getSetting('date-trigger'),
+    timeTrigger: stateManager.getSetting('time-trigger')
+  });
+
   const mdFrontmatter = extractFrontmatter(md);
   const mdSettings = extractSettingsFooter(md);
   const settings = { ...mdSettings };
@@ -199,13 +225,21 @@ export function parseMarkdown(stateManager: StateManager, md: string) {
 
   stateManager.compileSettings(settings);
 
+  const ast = fromMarkdown(md, {
+    extensions: [frontmatter(['yaml']), ...getExtensions(stateManager)],
+    mdastExtensions: [frontmatterFromMarkdown(['yaml']), ...getMdastExtensions(stateManager)],
+  });
+
+  console.log('parseMarkdown.ts - AST generated:', {
+    astType: ast.type,
+    childrenCount: ast.children?.length,
+    hasChildren: !!ast.children
+  });
+
   return {
     settings,
     frontmatter: fileFrontmatter,
-    ast: fromMarkdown(md, {
-      extensions: [frontmatter(['yaml']), ...getExtensions(stateManager)],
-      mdastExtensions: [frontmatterFromMarkdown(['yaml']), ...getMdastExtensions(stateManager)],
-    }),
+    ast,
   };
 }
 
