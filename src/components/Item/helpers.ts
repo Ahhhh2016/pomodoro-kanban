@@ -323,10 +323,10 @@ export function constructMenuDueDatePickerOnChange({
       titleRaw = titleRaw.replace(dueTimeDoubleRegEx, '');
       // Clean up any extra spaces that might be left
       titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
-      // Add the new due date
-      titleRaw = `${titleRaw} due:${dateTrigger}${wrappedDate}`;
+      // Add the new due date on a separate line
+      titleRaw = `${titleRaw}\ndue:${dateTrigger}${wrappedDate}`;
     } else {
-      titleRaw = `${item.data.titleRaw} due:${dateTrigger}${wrappedDate}`;
+      titleRaw = `${item.data.titleRaw}\ndue:${dateTrigger}${wrappedDate}`;
     }
 
     // After setting the date, show time picker
@@ -339,8 +339,8 @@ export function constructMenuDueDatePickerOnChange({
         stateManager,
         timePickerCoords,
         (time: string) => {
-          // Add the new due time (we already cleaned any existing time above)
-          const finalTitleRaw = `${titleRaw} due:${timeTrigger}{${time}}`;
+          // Add the new due time on a separate line (we already cleaned any existing time above)
+          const finalTitleRaw = `${titleRaw}due:${timeTrigger}{${time}}`;
           
           boardModifiers.updateItem(path, stateManager.updateItemContent(item, finalTitleRaw));
         },
