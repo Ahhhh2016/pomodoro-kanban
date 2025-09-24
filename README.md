@@ -357,6 +357,15 @@ The focus time calculation has been updated to work with the new text format whi
   - Focused time and due date share the same line for better space utilization
   - Cleaner, more organized visual hierarchy
 
+### Data Persistence Fixes (Latest)
+- **Enhanced Data Parsing**: Improved parsing logic for due dates, due times, and estimate times with better fallback mechanisms
+- **Robust Data Validation**: Added comprehensive validation for all time-related data to prevent invalid data from being stored
+- **Improved Error Handling**: Enhanced error handling in data hydration process to ensure data integrity
+- **Focus Time Persistence**: Fixed focus time calculation and storage to prevent data loss after page refresh
+- **Data Consistency**: Added validation checks to ensure parsed data is valid before storing
+- **Force Reparse Capability**: Added ability to force re-parse all markdown logs when needed
+- **Better AST Node Handling**: Improved handling of AST nodes to ensure data is correctly extracted from markdown
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.

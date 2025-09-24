@@ -639,6 +639,13 @@ export class TimerManager {
       .reduce((sum, l) => sum + l.duration, 0);
   }
 
+  /** Force re-parse all markdown logs (useful after data changes) */
+  forceReparseLogs() {
+    this.markdownParsed = false;
+    this.lastParsedSmCount = 0;
+    this.ensureMarkdownLogs();
+  }
+
   /** Returns focus sessions for the given date (defaults to today) */
   getLogsForDate(date: Date = new Date()) {
     this.ensureMarkdownLogs();
@@ -651,6 +658,8 @@ export class TimerManager {
     const sms: Map<any, any> = (this.plugin as any).stateManagers;
     if (!sms) return;
     if (!this.markdownParsed || sms.size !== this.lastParsedSmCount) {
+      // Clear existing logs before re-parsing to prevent duplicates
+      this.logs = [];
       this.parseLogsFromMarkdown();
       this.markdownParsed = true;
       this.lastParsedSmCount = sms.size;
@@ -681,19 +690,29 @@ export class TimerManager {
         const m = ln.trim().match(lineRegex);
         if (m) {
           const [_, dateStr, startStr, endStr, minsStr] = m;
-          const start = moment(`${dateStr} ${startStr}`, 'YYYY-MM-DD HH:mm').valueOf();
-          const end = moment(`${dateStr} ${endStr}`, 'YYYY-MM-DD HH:mm').valueOf();
-          const duration = parseInt(minsStr, 10) * 60000;
-          // prevent duplicates
-          if (!this.logs.find((l) => l.start === start && l.cardId === it.id)) {
-            this.logs.push({
-              cardId: it.id,
-              cardTitle: it.data?.title,
-              mode: ln.includes('🍅') ? 'pomodoro' : 'stopwatch',
-              start,
-              end,
-              duration,
-            });
+          const startMoment = moment(`${dateStr} ${startStr}`, 'YYYY-MM-DD HH:mm');
+          const endMoment = moment(`${dateStr} ${endStr}`, 'YYYY-MM-DD HH:mm');
+          
+          // Validate parsed moments
+          if (startMoment.isValid() && endMoment.isValid()) {
+            const start = startMoment.valueOf();
+            const end = endMoment.valueOf();
+            const duration = parseInt(minsStr, 10) * 60000;
+            
+            // Additional validation: ensure duration makes sense
+            if (duration > 0 && end > start) {
+              // prevent duplicates
+              if (!this.logs.find((l) => l.start === start && l.cardId === it.id)) {
+                this.logs.push({
+                  cardId: it.id,
+                  cardTitle: it.data?.title,
+                  mode: ln.includes('🍅') ? 'pomodoro' : 'stopwatch',
+                  start,
+                  end,
+                  duration,
+                });
+              }
+            }
           }
         }
       }

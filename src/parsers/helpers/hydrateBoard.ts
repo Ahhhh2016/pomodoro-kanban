@@ -256,24 +256,32 @@ export function hydrateItem(stateManager: StateManager, item: Item) {
   }
 
   if (duedateStr) {
-    item.data.metadata.duedate = moment(duedateStr, stateManager.getSetting('date-format'));
+    const duedate = moment(duedateStr, stateManager.getSetting('date-format'));
+    if (duedate.isValid()) {
+      item.data.metadata.duedate = duedate;
+    }
   }
 
   if (duetimeStr) {
     let duetime = moment(duetimeStr, stateManager.getSetting('time-format'));
 
-    if (item.data.metadata.duedate) {
-      duetime.year(item.data.metadata.duedate.year());
-      duetime.month(item.data.metadata.duedate.month());
-      duetime.date(item.data.metadata.duedate.date());
-    }
+    if (duetime.isValid()) {
+      if (item.data.metadata.duedate) {
+        duetime.year(item.data.metadata.duedate.year());
+        duetime.month(item.data.metadata.duedate.month());
+        duetime.date(item.data.metadata.duedate.date());
+      }
 
-    item.data.metadata.duetime = duetime;
+      item.data.metadata.duetime = duetime;
+    }
   }
 
   if (estimatetimeStr) {
     // Parse estimate time as HH:mm format
-    item.data.metadata.estimatetime = moment(estimatetimeStr, 'HH:mm');
+    const estimatetime = moment(estimatetimeStr, 'HH:mm');
+    if (estimatetime.isValid()) {
+      item.data.metadata.estimatetime = estimatetime;
+    }
   }
 
   if (fileAccessor) {

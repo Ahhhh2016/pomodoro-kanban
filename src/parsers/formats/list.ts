@@ -174,9 +174,11 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
 
       if (genericNode.type === 'duedate' || genericNode.type === 'duedateLink') {
         // Always use the last (most recent) due date if multiple exist
-        // Access duedate data from the correct property
+        // Access duedate data from the correct property with better fallback
         const duedateValue = (genericNode as any).duedate || (genericNode as DateNode).date;
-        itemData.metadata.duedateStr = duedateValue;
+        if (duedateValue) {
+          itemData.metadata.duedateStr = duedateValue;
+        }
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
@@ -188,9 +190,11 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       }
 
       if (genericNode.type === 'duetime') {
-        // Access duetime data from the correct property
+        // Access duetime data from the correct property with better fallback
         const duetimeValue = (genericNode as any).duetime || (genericNode as TimeNode).time;
-        itemData.metadata.duetimeStr = duetimeValue;
+        if (duetimeValue) {
+          itemData.metadata.duetimeStr = duetimeValue;
+        }
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
@@ -201,7 +205,10 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       }
 
       if (genericNode.type === 'estimatetime') {
-        itemData.metadata.estimatetimeStr = (genericNode as TimeNode).time;
+        const estimatetimeValue = (genericNode as any).estimatetime || (genericNode as TimeNode).time;
+        if (estimatetimeValue) {
+          itemData.metadata.estimatetimeStr = estimatetimeValue;
+        }
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
