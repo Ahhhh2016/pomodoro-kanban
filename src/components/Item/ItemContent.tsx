@@ -25,7 +25,7 @@ import { c, useGetDateColorFn, useGetTagColorFn } from '../helpers';
 import { EditState, EditingState, Item, isEditing } from '../types';
 import { DateAndTime, RelativeDate } from './DateAndTime';
 import { InlineMetadata } from './InlineMetadata';
-import { preprocessTitle } from '../../parsers/helpers/hydrateBoard';
+import { preprocessTitle, filterTimelogFromMarkdown } from '../../parsers/helpers/hydrateBoard';
 import {
   constructDatePicker,
   constructMenuDatePickerOnChange,
@@ -267,6 +267,9 @@ export const ItemContent = memo(function ItemContent({
   );
 
   if (!isStatic && isEditing(editState)) {
+    // Filter timelog and due markers from markdown content when hide-timelog is enabled
+    const filteredValue = filterTimelogFromMarkdown(stateManager, item.data.titleRaw);
+    
     return (
       <div className={c('item-input-wrapper')}>
         <MarkdownEditor
@@ -275,7 +278,7 @@ export const ItemContent = memo(function ItemContent({
           onEnter={onEnter}
           onEscape={onEscape}
           onSubmit={onSubmit}
-          value={item.data.titleRaw}
+          value={filteredValue}
           onChange={(update) => {
             if (update.docChanged) {
               titleRef.current = update.state.doc.toString().trim();

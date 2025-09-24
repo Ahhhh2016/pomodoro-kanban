@@ -19,6 +19,7 @@ export function preprocessTitle(stateManager: StateManager, title: string) {
   const dateDisplayFormat = stateManager.getSetting('date-display-format');
   const timeTrigger = stateManager.getSetting('time-trigger');
   const timeFormat = stateManager.getSetting('time-format');
+  const hideTimelog = stateManager.getSetting('hide-timelog');
 
   const { app } = stateManager;
 
@@ -93,42 +94,127 @@ export function preprocessTitle(stateManager: StateManager, title: string) {
     }
   );
 
-  // Handle due date - remove from markdown content display (now only shown in focused time line)
-  title = title.replace(
-    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'g'),
-    (match, space, content) => {
-      // Remove due date from markdown content display - it's now only shown in focused time line
-      return space;
-    }
-  );
+  // Handle due date and due time - hide from markdown content display when timelog is hidden
+  if (hideTimelog) {
+    // Hide due date from markdown content display when timelog is hidden
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Hide due date from markdown content display when timelog is hidden
+        return space;
+      }
+    );
 
-  title = title.replace(
-    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'g'),
-    (match, space, content) => {
-      // Remove due date from markdown content display - it's now only shown in focused time line
-      return space;
-    }
-  );
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'g'),
+      (match, space, content) => {
+        // Hide due date from markdown content display when timelog is hidden
+        return space;
+      }
+    );
 
-  // Handle due time - remove from markdown content display (now only shown in focused time line)
-  title = title.replace(
-    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
-    (match, space, content) => {
-      // Remove due time from markdown content display - it's now only shown in focused time line
-      return space;
-    }
-  );
+    // Hide due time from markdown content display when timelog is hidden
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Hide due time from markdown content display when timelog is hidden
+        return space;
+      }
+    );
 
-  // Handle due time with double trigger (due:@@{time}) - remove from markdown content display
-  title = title.replace(
-    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
-    (match, space, content) => {
-      // Remove due time from markdown content display - it's now only shown in focused time line
-      return space;
-    }
-  );
+    // Hide due time with double trigger (due:@@{time}) from markdown content display when timelog is hidden
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Hide due time from markdown content display when timelog is hidden
+        return space;
+      }
+    );
+  } else {
+    // Original behavior when timelog is not hidden - remove from markdown content display (now only shown in focused time line)
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Remove due date from markdown content display - it's now only shown in focused time line
+        return space;
+      }
+    );
+
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'g'),
+      (match, space, content) => {
+        // Remove due date from markdown content display - it's now only shown in focused time line
+        return space;
+      }
+    );
+
+    // Handle due time - remove from markdown content display (now only shown in focused time line)
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Remove due time from markdown content display - it's now only shown in focused time line
+        return space;
+      }
+    );
+
+    // Handle due time with double trigger (due:@@{time}) - remove from markdown content display
+    title = title.replace(
+      new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'g'),
+      (match, space, content) => {
+        // Remove due time from markdown content display - it's now only shown in focused time line
+        return space;
+      }
+    );
+  }
 
   return title;
+}
+
+/**
+ * Filter timelog and due markers from markdown content for editing mode
+ * when hide-timelog setting is enabled
+ */
+export function filterTimelogFromMarkdown(stateManager: StateManager, markdown: string): string {
+  const hideTimelog = stateManager.getSetting('hide-timelog');
+  
+  if (!hideTimelog) {
+    return markdown;
+  }
+
+  const dateTrigger = stateManager.getSetting('date-trigger');
+  const timeTrigger = stateManager.getSetting('time-trigger');
+  
+  let filteredMarkdown = markdown;
+
+  // Remove timelog lines (those starting with "++" or "🍅")
+  filteredMarkdown = filteredMarkdown.replace(/^\s*(\+\+|🍅)\s.*$/gm, '');
+
+  // Remove due date markers
+  filteredMarkdown = filteredMarkdown.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'gm'),
+    (match, space) => space
+  );
+
+  filteredMarkdown = filteredMarkdown.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}\\[([^\\]]+)\\]\\([^)]+\\)`, 'gm'),
+    (match, space) => space
+  );
+
+  // Remove due time markers
+  filteredMarkdown = filteredMarkdown.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'gm'),
+    (match, space) => space
+  );
+
+  filteredMarkdown = filteredMarkdown.replace(
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger)}${escapeRegExpStr(timeTrigger)}{([^}]+)}`, 'gm'),
+    (match, space) => space
+  );
+
+  // Clean up multiple consecutive newlines that might be left after filtering
+  filteredMarkdown = filteredMarkdown.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+  return filteredMarkdown.trim();
 }
 
 export function hydrateItem(stateManager: StateManager, item: Item) {

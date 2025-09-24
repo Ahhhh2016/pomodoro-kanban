@@ -173,6 +173,15 @@ The plugin provides flexible control over how timelog entries are displayed:
 3. The "Hide timelog in cards" setting provides an additional layer of control specifically for card view
 4. When both settings are configured, timelog entries will only be hidden in card view if both conditions are met
 
+### Enhanced Timelog Hiding
+When "Hide timelog in cards" is enabled, the plugin provides comprehensive hiding of timelog-related information:
+
+- **Board View**: Timelog entries and due date/time markers are hidden from card display
+- **Markdown Editing Mode**: When double-clicking a card to edit, timelog entries and due markers (such as `due:@{2025-09-29}`, `due:@@{01:15}`, and `++ 2025-09-24 16:19 – 16:20 (1 m)`) are filtered out from the editing interface
+- **Raw Markdown View**: Only when viewing the entire kanban board "as markdown" will all original data be visible
+
+This provides a completely clean editing experience when timelog information is hidden, while still preserving all data in the markdown source. The filtering only affects the visual display and editing interface, not the underlying data storage.
+
 ## Recent Improvements
 
 ### Due Date Duplication Fix
