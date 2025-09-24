@@ -237,6 +237,15 @@ The plugin provides flexible control over how timelog entries are displayed:
 - **Smart Menu Detection**: The delete option only appears when a due date is actually present on the card
 - **Clean Markdown**: Ensures proper cleanup of all due date related content without leaving extra spaces or formatting issues
 
+### Due Date Management During Timer Sessions
+- **Always Available**: Due date management options (add/change/delete) are now available even when a timer is running
+- **Timer Integration**: Users can manage due dates without interrupting their current timer session
+- **Consistent Experience**: Due date options appear in all timer menu scenarios:
+  - When timer is running on the current card
+  - When timer is running on a different card
+  - When no timer is running
+- **Workflow Continuity**: Allows users to adjust deadlines while maintaining focus on their current task
+
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)
 
