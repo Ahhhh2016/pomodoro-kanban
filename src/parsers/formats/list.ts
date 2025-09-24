@@ -167,6 +167,7 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       }
 
       if (genericNode.type === 'duedate' || genericNode.type === 'duedateLink') {
+        // Always use the last (most recent) due date if multiple exist
         itemData.metadata.duedateStr = (genericNode as DateNode).date;
         if (moveDates) {
           title = markRangeForDeletion(title, {
@@ -174,7 +175,8 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
             end: node.position.end.offset - itemBoundary.start,
           });
         }
-        return true;
+        // Don't return true here - continue processing to find all due dates
+        // The last one will be the one that's kept
       }
 
       if (genericNode.type === 'duetime') {

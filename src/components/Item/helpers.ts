@@ -298,8 +298,9 @@ export function constructMenuDueDatePickerOnChange({
   const contentMatch = shouldLinkDates
     ? '(?:\\[[^\\]]+\\]\\([^)]+\\)|\\[\\[[^\\]]+\\]\\])'
     : '{[^}]+}';
-  const dueDateRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger as string)}${contentMatch}`);
-  const dueTimeRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`);
+  // Use global flag to match all due dates, not just the first one
+  const dueDateRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger as string)}${contentMatch}`, 'g');
+  const dueTimeRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`, 'g');
 
   return (dates: Date[]) => {
     const date = dates[0];
@@ -311,7 +312,13 @@ export function constructMenuDueDatePickerOnChange({
     let titleRaw = item.data.titleRaw;
 
     if (hasDueDate) {
-      titleRaw = item.data.titleRaw.replace(dueDateRegEx, `$1due:${dateTrigger}${wrappedDate}`);
+      // Remove ALL existing due dates and times to prevent duplicates
+      titleRaw = item.data.titleRaw.replace(dueDateRegEx, '');
+      titleRaw = titleRaw.replace(dueTimeRegEx, '');
+      // Clean up any extra spaces that might be left
+      titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+      // Add the new due date
+      titleRaw = `${titleRaw} due:${dateTrigger}${wrappedDate}`;
     } else {
       titleRaw = `${item.data.titleRaw} due:${dateTrigger}${wrappedDate}`;
     }
@@ -323,14 +330,8 @@ export function constructMenuDueDatePickerOnChange({
         stateManager,
         { x: window.innerWidth / 2, y: window.innerHeight / 2 },
         (time: string) => {
-          let finalTitleRaw = titleRaw;
-          
-          // Check if there's already a due time
-          if (dueTimeRegEx.test(finalTitleRaw)) {
-            finalTitleRaw = finalTitleRaw.replace(dueTimeRegEx, `$1due:${timeTrigger}{${time}}`);
-          } else {
-            finalTitleRaw = `${finalTitleRaw} due:${timeTrigger}{${time}}`;
-          }
+          // Add the new due time (we already cleaned any existing time above)
+          const finalTitleRaw = `${titleRaw} due:${timeTrigger}{${time}}`;
           
           boardModifiers.updateItem(path, stateManager.updateItemContent(item, finalTitleRaw));
         },

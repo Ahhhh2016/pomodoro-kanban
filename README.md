@@ -127,18 +127,23 @@ The plugin now includes comprehensive due date functionality to help you track t
 
 ### Features
 - **Easy Due Date Setting**: Access due date picker through the timer menu (right-click on timer button)
+- **Single Due Date Per Card**: Each card can only have one due date - existing due dates are replaced when setting a new one
 - **Visual Indicators**: Due dates are displayed in red, bold text at the bottom right of cards
 - **Flexible Format**: Supports both regular date format and daily note linking
 - **Click to Edit**: Click on any due date to modify or remove it
 - **Markdown Integration**: Due dates are stored as `due:@2024-01-15` format in the card markdown
 
 ### How to Use
-1. **Set Due Date**: Right-click on the timer button of any card and select "添加截止日期" (Add Due Date)
-2. **Date Picker**: Choose your desired due date from the calendar popup
-3. **Time Picker**: After selecting the date, a time picker will automatically appear to set the specific time
-4. **Visual Display**: The due date and time will appear in red, bold text at the bottom right of the card
-5. **Edit Due Date**: Click on the displayed due date to modify both date and time
-6. **Remove Due Date**: Use the date picker to clear the due date
+1. **Set Due Date**: Right-click on the timer button of any card and select "添加截止日期" (Add Due Date) or "更改截止日期" (Change Due Date) if one already exists
+2. **Smart Menu**: The menu automatically detects if a card already has a due date and shows the appropriate option:
+   - "添加截止日期" (Add Due Date) - when no due date exists
+   - "更改截止日期" (Change Due Date) - when a due date already exists
+3. **Date Picker**: Choose your desired due date from the calendar popup
+4. **Time Picker**: After selecting the date, a time picker will automatically appear to set the specific time
+5. **Visual Display**: The due date and time will appear in red, bold text at the bottom right of the card
+6. **Edit Due Date**: Click on the displayed due date to modify both date and time
+7. **Replace Due Date**: Setting a new due date will automatically replace any existing due date and time
+8. **Remove Due Date**: Use the date picker to clear the due date
 
 ### Markdown Format
 Due dates and times are stored in the card's markdown content using the format:
@@ -168,6 +173,20 @@ The plugin provides flexible control over how timelog entries are displayed:
 4. When both settings are configured, timelog entries will only be hidden in card view if both conditions are met
 
 ## Recent Improvements
+
+### Due Date Duplication Fix
+- **Prevented Duplicate Due Dates**: Fixed an issue where users could accidentally add multiple due dates to the same card
+- **Smart Replacement Logic**: When setting a new due date, all existing due dates are automatically removed to prevent duplicates
+- **Improved Parsing**: The parser now correctly handles multiple due dates by keeping only the most recent one
+- **Clean Markdown**: Ensures clean markdown output without duplicate due date entries
+- **Enhanced Menu Detection**: Fixed menu detection logic to reliably show "更改截止日期" (Change Due Date) when a due date already exists, preventing confusion about whether a due date is already set
+
+### Smart Due Date Menu
+- **Intelligent Menu Detection**: The timer menu now automatically detects whether a card already has a due date and displays the appropriate menu option:
+  - Shows "添加截止日期" (Add Due Date) when no due date exists
+  - Shows "更改截止日期" (Change Due Date) when a due date already exists
+- **Improved User Experience**: Users can now clearly understand whether they are adding a new due date or modifying an existing one
+- **Consistent Detection Logic**: Uses the same detection logic as the due date display component for accurate status detection
 
 ### Timer Settings Priority Fix
 - **Local Settings Priority**: Fixed an issue where board-specific timer settings (pomodoro rounds, break time duration) were not being properly applied. Local board settings now correctly take precedence over global settings for all timer-related configurations including:

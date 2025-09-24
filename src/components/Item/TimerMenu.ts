@@ -70,10 +70,15 @@ export function useTimerMenu(
           .setTitle(isStopwatchRunning ? '停止秒表' : '开始秒表')
           .onClick(() => timerManager.toggle('stopwatch', item.id))
       )
-      .addItem((mi) =>
+      .addItem((mi) => {
+        // Check for due date in both metadata and raw content for more reliable detection
+        const hasDueDateInMetadata = !!item.data.metadata.duedate;
+        const hasDueDateInContent = item.data.titleRaw.includes('due:@');
+        const hasDueDate = hasDueDateInMetadata || hasDueDateInContent;
+        
         mi
           .setIcon('lucide-calendar')
-          .setTitle('添加截止日期')
+          .setTitle(hasDueDate ? '更改截止日期' : '添加截止日期')
           .onClick(() => {
             constructDatePicker(
               e.view,
@@ -83,13 +88,13 @@ export function useTimerMenu(
                 stateManager,
                 boardModifiers,
                 item,
-                hasDueDate: !!item.data.metadata.duedate,
+                hasDueDate,
                 path,
               }),
               item.data.metadata.duedate?.toDate()
             );
-          })
-      );
+          });
+      });
 
     menu.showAtMouseEvent(e);
   };
