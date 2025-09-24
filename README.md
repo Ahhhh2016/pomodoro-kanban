@@ -366,6 +366,38 @@ The focus time calculation has been updated to work with the new text format whi
 - **Force Reparse Capability**: Added ability to force re-parse all markdown logs when needed
 - **Better AST Node Handling**: Improved handling of AST nodes to ensure data is correctly extracted from markdown
 
+## Theme Compatibility
+
+The Pomodoro Kanban plugin is designed to work seamlessly with all Obsidian themes. Here's how it adapts to different themes:
+
+### Automatic Theme Adaptation
+- **CSS Variables**: The plugin extensively uses Obsidian's standard CSS variables (e.g., `--background-primary`, `--text-normal`, `--interactive-accent`) to ensure consistent appearance across themes
+- **Dark/Light Mode**: Automatically adapts to your theme's dark or light mode without any configuration needed
+- **Color Harmony**: All colors, borders, and backgrounds use theme-aware variables that change with your selected theme
+- **Typography**: Respects your theme's font settings and text styling
+
+### Supported Theme Features
+- ✅ **Accent Colors**: Uses your theme's accent color for interactive elements
+- ✅ **Background Colors**: Adapts to your theme's background color scheme
+- ✅ **Text Colors**: Matches your theme's text color hierarchy
+- ✅ **Border Styles**: Uses your theme's border colors and styles
+- ✅ **Shadow Effects**: Adapts shadow colors to match your theme
+- ✅ **Responsive Design**: Works on all screen sizes and devices
+
+### Customization Options
+While the plugin automatically adapts to themes, you can further customize its appearance:
+- **Lane Width**: Adjust the width of kanban lanes in plugin settings
+- **Timer Colors**: Timer elements use your theme's accent color
+- **Card Styling**: Cards inherit your theme's card styling patterns
+
+### Theme Testing
+The plugin has been tested with popular Obsidian themes including:
+- Default Obsidian themes (Light/Dark)
+- Community themes (Minimal, Things, California Coast, etc.)
+- Custom user themes
+
+If you encounter any theme compatibility issues, please report them in the [GitHub Issues](https://github.com/mgmeyers/obsidian-kanban/issues).
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.
