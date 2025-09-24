@@ -830,6 +830,37 @@ export function constructEstimateTimeInput({
           const hours = parseInt(hoursInput.value) || 0;
           const minutes = parseInt(minutesInput.value) || 0;
           
+          // Input validation
+          if (hours < 0 || hours > 23) {
+            // Show error message
+            const errorMsg = div.querySelector('.error-message');
+            if (errorMsg) errorMsg.remove();
+            
+            const errorDiv = div.createDiv({ cls: 'error-message' });
+            errorDiv.style.color = 'var(--text-error)';
+            errorDiv.style.fontSize = '12px';
+            errorDiv.style.marginTop = '8px';
+            errorDiv.textContent = t('Hours must be between 0 and 23');
+            return;
+          }
+          
+          if (minutes < 0 || minutes > 59) {
+            // Show error message
+            const errorMsg = div.querySelector('.error-message');
+            if (errorMsg) errorMsg.remove();
+            
+            const errorDiv = div.createDiv({ cls: 'error-message' });
+            errorDiv.style.color = 'var(--text-error)';
+            errorDiv.style.fontSize = '12px';
+            errorDiv.style.marginTop = '8px';
+            errorDiv.textContent = t('Minutes must be between 0 and 59');
+            return;
+          }
+          
+          // Clear any existing error messages
+          const errorMsg = div.querySelector('.error-message');
+          if (errorMsg) errorMsg.remove();
+          
           if (hours === 0 && minutes === 0) {
             // If both are 0, treat as delete
             deleteEstimateTime({ stateManager, boardModifiers, item, path });

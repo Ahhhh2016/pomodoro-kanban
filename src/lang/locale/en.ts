@@ -312,6 +312,8 @@ const en = {
   'Add estimate time': 'Add estimate time',
   'Modify estimate time': 'Modify estimate time',
   'Delete estimate time': 'Delete estimate time',
+  'Hours must be between 0 and 23': 'Hours must be between 0 and 23',
+  'Minutes must be between 0 and 59': 'Minutes must be between 0 and 59',
 
   // TimerPanelModal.tsx
   'Break': 'Break',

@@ -166,7 +166,15 @@ const ItemInner = memo(function ItemInner({
           const estimateMinutes = item.data.metadata.estimatetime.minutes();
           // Don't show if both hours and minutes are 0
           if (estimateHours === 0 && estimateMinutes === 0) return '';
-          return `${estimateHours ? estimateHours + ' h ' : ''}${estimateMinutes} min`;
+          // Don't show minutes if it's 0 and we have hours
+          if (estimateHours > 0 && estimateMinutes === 0) {
+            return `${estimateHours} h`;
+          }
+          // Don't show hours if it's 0
+          if (estimateHours === 0) {
+            return `${estimateMinutes} min`;
+          }
+          return `${estimateHours} h ${estimateMinutes} min`;
         })() : '';
         
         // Check if estimate time should be shown (not empty after formatting)
@@ -206,19 +214,8 @@ const ItemInner = memo(function ItemInner({
             }}
           >
             {shouldShowEstimate && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  {`Estimate: ${estimateTimeStr}`}
-                </div>
-                <div>
-                  {hasDueDate && (
-                    <DueDate 
-                      item={item} 
-                      stateManager={stateManager} 
-                      onEditDueDate={onEditDueDate}
-                    />
-                  )}
-                </div>
+              <div>
+                {`Estimate: ${estimateTimeStr}`}
               </div>
             )}
             {hasFocusedTime && (
@@ -227,7 +224,7 @@ const ItemInner = memo(function ItemInner({
                   {`Focused: ${focusedTimeStr}`}
                 </div>
                 <div>
-                  {hasDueDate && !shouldShowEstimate && (
+                  {hasDueDate && (
                     <DueDate 
                       item={item} 
                       stateManager={stateManager} 

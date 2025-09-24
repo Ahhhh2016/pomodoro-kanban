@@ -225,6 +225,8 @@ const lang: Partial<Lang> = {
   'Add estimate time': '添加预估时间',
   'Modify estimate time': '修改预估时间',
   'Delete estimate time': '删除预估时间',
+  'Hours must be between 0 and 23': '小时必须在0到23之间',
+  'Minutes must be between 0 and 59': '分钟必须在0到59之间',
 
   // TimerPanelModal.tsx
   'Break': '休息',

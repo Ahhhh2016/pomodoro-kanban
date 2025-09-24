@@ -346,6 +346,17 @@ The focus time calculation has been updated to work with the new text format whi
 - **Hide Timelog Compatibility**: Hide timelog filtering now works correctly in editing mode without interfering with data updates
 - **Complete Format Support**: All due date and estimate time formats are now properly handled in both display and editing modes
 
+### Estimate Time Display and Input Improvements
+- **Smart Time Formatting**: Estimate time now displays intelligently - when minutes are 0, only hours are shown (e.g., "1 h" instead of "1 h 0 min")
+- **Input Validation**: Added comprehensive input validation for estimate time with user-friendly error messages:
+  - Hours must be between 0 and 23
+  - Minutes must be between 0 and 59
+  - Error messages are displayed in both English and Chinese
+- **Improved Display Layout**: Enhanced the layout when estimate time, focused time, and due date are all present:
+  - Estimate time displays on its own line
+  - Focused time and due date share the same line for better space utilization
+  - Cleaner, more organized visual hierarchy
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.
