@@ -318,6 +318,12 @@ The focus time calculation has been updated to work with the new text format whi
 - **Improved User Experience**: Users will no longer see confusing "stop" options on cards that aren't currently being timed
 - **Consistent Behavior**: Timer menu options now accurately reflect the actual timing state of each individual card
 
+### Timer Card Border Style Fix
+- **Clean Timer Border**: Fixed timer card border styling to show only dashed purple border when timing is active
+- **Removed Double Border**: Eliminated the issue where timing cards showed both solid gray border and dashed purple border
+- **Improved Visual Clarity**: Timer cards now display a clean, single dashed border that clearly indicates active timing state
+- **Consistent Styling**: Timer border styling is now consistent across all timing states
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.
