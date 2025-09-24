@@ -322,8 +322,8 @@ export function constructMenuDueDatePickerOnChange({
       titleRaw = item.data.titleRaw.replace(dueDateRegEx, '');
       titleRaw = titleRaw.replace(dueTimeRegEx, '');
       titleRaw = titleRaw.replace(dueTimeDoubleRegEx, '');
-      // Clean up any extra spaces that might be left
-      titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+      // Preserve line breaks when cleaning up spaces
+      titleRaw = titleRaw.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim();
       // Add the new due date on a separate line
       titleRaw = `${titleRaw}\ndue:${dateTrigger}${wrappedDate}`;
     } else {
@@ -387,8 +387,8 @@ export function deleteDueDate({
   titleRaw = titleRaw.replace(dueTimeRegEx, '');
   titleRaw = titleRaw.replace(dueTimeDoubleRegEx, '');
   
-  // Clean up any extra spaces that might be left
-  titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+  // Preserve line breaks when cleaning up spaces
+  titleRaw = titleRaw.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim();
 
   // Update the item with the cleaned content
   boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
@@ -844,10 +844,11 @@ export function constructEstimateTimeInput({
               // Remove existing estimate time
               const estimateTimeRegEx = /(^|\s)estimate:@{[^}]+}/g;
               titleRaw = titleRaw.replace(estimateTimeRegEx, '');
-              titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+              // Preserve line breaks when cleaning up spaces
+              titleRaw = titleRaw.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim();
             }
             
-            // Add new estimate time
+            // Add new estimate time with proper line break
             titleRaw = `${titleRaw}\n${estimateTimeStr}`;
             
             boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
@@ -910,8 +911,8 @@ export function deleteEstimateTime({
   // Remove existing estimate time
   titleRaw = titleRaw.replace(estimateTimeRegEx, '');
   
-  // Clean up any extra spaces that might be left
-  titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+  // Preserve line breaks when cleaning up spaces
+  titleRaw = titleRaw.replace(/\s+/g, ' ').replace(/\n\s+/g, '\n').trim();
 
   // Update the item with the cleaned content
   boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));

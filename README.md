@@ -336,6 +336,16 @@ The focus time calculation has been updated to work with the new text format whi
 - **Accessibility Improvements**: Better contrast, focus indicators, and keyboard navigation support
 - **Consistent Theming**: Modal now properly uses Obsidian's CSS variables for seamless theme integration
 
+### Due Date and Estimate Time Format Preservation Fix
+- **Fixed Format Issues**: Resolved problems where modifying due dates or estimate times would cause format corruption and loss of line breaks
+- **Preserved Line Breaks**: Updated all date/time modification functions to properly preserve existing line breaks and formatting
+- **Corrected Filtering Logic**: Fixed incorrect application of hide timelog filtering that was removing newly added due dates and estimate times
+- **Fixed Hide Timelog Display**: Corrected regex patterns in filterTimelogFromMarkdown to properly hide due dates and estimate times in editing mode
+- **Proper Content Processing**: Enhanced content cleaning logic to maintain proper spacing while preserving structural formatting
+- **Better User Experience**: Users can now modify due dates and estimate times without losing their carefully formatted content
+- **Hide Timelog Compatibility**: Hide timelog filtering now works correctly in editing mode without interfering with data updates
+- **Complete Format Support**: All due date and estimate time formats are now properly handled in both display and editing modes
+
 ## Internationalization (i18n) Support
 
 The plugin now supports full internationalization for both Chinese and English languages, automatically adapting to the user's Obsidian language settings.

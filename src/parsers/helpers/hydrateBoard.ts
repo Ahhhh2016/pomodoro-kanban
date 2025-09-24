@@ -200,7 +200,7 @@ export function filterTimelogFromMarkdown(stateManager: StateManager, markdown: 
 
   // Remove due date markers
   filteredMarkdown = filteredMarkdown.replace(
-    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}{([^}]+)}`, 'gm'),
+    new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger)}([^\\s]+)`, 'gm'),
     (match, space) => space
   );
 
