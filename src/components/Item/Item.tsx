@@ -156,19 +156,24 @@ const ItemInner = memo(function ItemInner({
         const hasDueDate = item.data.metadata.duedate;
         const hasEstimateTime = item.data.metadata.estimatetime;
         
-        // Show this section if any of focused time, due date, or estimate time exists
-        if (!hasFocusedTime && !hasDueDate && !hasEstimateTime) return null;
-        
         const hours = Math.floor(totalMs / 3600000);
         const minutes = Math.floor((totalMs % 3600000) / 60000);
         const focusedTimeStr = `${hours ? hours + ' h ' : ''}${minutes} min`;
         
-        // Format estimate time like focused time
+        // Format estimate time like focused time, hide if 0h 0min
         const estimateTimeStr = hasEstimateTime ? (() => {
           const estimateHours = item.data.metadata.estimatetime.hours();
           const estimateMinutes = item.data.metadata.estimatetime.minutes();
+          // Don't show if both hours and minutes are 0
+          if (estimateHours === 0 && estimateMinutes === 0) return '';
           return `${estimateHours ? estimateHours + ' h ' : ''}${estimateMinutes} min`;
         })() : '';
+        
+        // Check if estimate time should be shown (not empty after formatting)
+        const shouldShowEstimate = hasEstimateTime && estimateTimeStr !== '';
+        
+        // Show this section if any of focused time, due date, or estimate time exists
+        if (!hasFocusedTime && !hasDueDate && !shouldShowEstimate) return null;
         
         // Due date edit handler
         const onEditDueDate = (e: MouseEvent) => {
@@ -196,27 +201,42 @@ const ItemInner = memo(function ItemInner({
               opacity: 0.6, 
               paddingInlineStart: 8,
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              flexDirection: 'column',
+              gap: '2px'
             }}
           >
-            <div>
-              {hasFocusedTime && `Focused: ${focusedTimeStr}`}
-              {hasEstimateTime && (
-                <span style={{ marginLeft: hasFocusedTime ? '12px' : '0' }}>
-                  Estimate: {estimateTimeStr}
-                </span>
-              )}
-            </div>
-            <div>
-              {hasDueDate && (
-                <DueDate 
-                  item={item} 
-                  stateManager={stateManager} 
-                  onEditDueDate={onEditDueDate}
-                />
-              )}
-            </div>
+            {shouldShowEstimate && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  {`Estimate: ${estimateTimeStr}`}
+                </div>
+                <div>
+                  {hasDueDate && (
+                    <DueDate 
+                      item={item} 
+                      stateManager={stateManager} 
+                      onEditDueDate={onEditDueDate}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+            {hasFocusedTime && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  {`Focused: ${focusedTimeStr}`}
+                </div>
+                <div>
+                  {hasDueDate && !shouldShowEstimate && (
+                    <DueDate 
+                      item={item} 
+                      stateManager={stateManager} 
+                      onEditDueDate={onEditDueDate}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
