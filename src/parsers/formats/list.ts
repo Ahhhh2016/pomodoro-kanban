@@ -168,14 +168,7 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
 
       if (genericNode.type === 'duedate' || genericNode.type === 'duedateLink') {
         // Always use the last (most recent) due date if multiple exist
-        const dateValue = (genericNode as DateNode).date;
-        console.log('list.ts - Processing duedate node:', {
-          nodeType: genericNode.type,
-          dateValue,
-          hasDate: !!dateValue,
-          nodeKeys: Object.keys(genericNode)
-        });
-        itemData.metadata.duedateStr = dateValue;
+        itemData.metadata.duedateStr = (genericNode as DateNode).date;
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
@@ -187,14 +180,7 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       }
 
       if (genericNode.type === 'duetime') {
-        const timeValue = (genericNode as TimeNode).time;
-        console.log('list.ts - Processing duetime node:', {
-          nodeType: genericNode.type,
-          timeValue,
-          hasTime: !!timeValue,
-          nodeKeys: Object.keys(genericNode)
-        });
-        itemData.metadata.duetimeStr = timeValue;
+        itemData.metadata.duetimeStr = (genericNode as TimeNode).time;
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,

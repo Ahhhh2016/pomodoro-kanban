@@ -154,54 +154,21 @@ export function hydrateItem(stateManager: StateManager, item: Item) {
     item.data.metadata.time = time;
   }
 
-  // Debug: Log due date hydration process
-  console.log('hydrateBoard.ts - Due date hydration debug:', {
-    itemId: item.id,
-    duedateStr,
-    duetimeStr,
-    dateFormat: stateManager.getSetting('date-format'),
-    timeFormat: stateManager.getSetting('time-format'),
-    hasDuedateStr: !!duedateStr,
-    hasDuetimeStr: !!duetimeStr
-  });
-
   if (duedateStr) {
-    const parsedDuedate = moment(duedateStr, stateManager.getSetting('date-format'));
-    console.log('hydrateBoard.ts - Parsing duedate:', {
-      duedateStr,
-      parsedDuedate: parsedDuedate.format(),
-      isValid: parsedDuedate.isValid()
-    });
-    item.data.metadata.duedate = parsedDuedate;
+    item.data.metadata.duedate = moment(duedateStr, stateManager.getSetting('date-format'));
   }
 
   if (duetimeStr) {
     let duetime = moment(duetimeStr, stateManager.getSetting('time-format'));
-    console.log('hydrateBoard.ts - Parsing duetime:', {
-      duetimeStr,
-      parsedDuetime: duetime.format(),
-      isValid: duetime.isValid()
-    });
 
     if (item.data.metadata.duedate) {
       duetime.year(item.data.metadata.duedate.year());
       duetime.month(item.data.metadata.duedate.month());
       duetime.date(item.data.metadata.duedate.date());
-      console.log('hydrateBoard.ts - Combined duetime with duedate:', {
-        finalDuetime: duetime.format()
-      });
     }
 
     item.data.metadata.duetime = duetime;
   }
-
-  console.log('hydrateBoard.ts - Final due date metadata:', {
-    itemId: item.id,
-    finalDuedate: item.data.metadata.duedate?.format(),
-    finalDuetime: item.data.metadata.duetime?.format(),
-    hasDuedate: !!item.data.metadata.duedate,
-    hasDuetime: !!item.data.metadata.duetime
-  });
 
   if (fileAccessor) {
     const file = stateManager.app.metadataCache.getFirstLinkpathDest(

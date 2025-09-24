@@ -91,6 +91,7 @@ interface ConstructMenuDatePickerOnChangeParams {
   item: Item;
   hasDate: boolean;
   path: Path;
+  coordinates?: { x: number; y: number };
 }
 
 export function constructMenuDatePickerOnChange({
@@ -281,6 +282,7 @@ interface ConstructMenuDueDatePickerOnChangeParams {
   item: Item;
   hasDueDate: boolean;
   path: Path;
+  coordinates?: { x: number; y: number };
 }
 
 export function constructMenuDueDatePickerOnChange({
@@ -289,6 +291,7 @@ export function constructMenuDueDatePickerOnChange({
   item,
   hasDueDate,
   path,
+  coordinates,
 }: ConstructMenuDueDatePickerOnChangeParams) {
   const dateFormat = stateManager.getSetting('date-format');
   const timeFormat = stateManager.getSetting('time-format');
@@ -328,10 +331,13 @@ export function constructMenuDueDatePickerOnChange({
 
     // After setting the date, show time picker
     setTimeout(() => {
+      // Use the same coordinates as the date picker, or fallback to screen center
+      const timePickerCoords = coordinates || { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+      
       constructTimePicker(
         window,
         stateManager,
-        { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+        timePickerCoords,
         (time: string) => {
           // Add the new due time (we already cleaned any existing time above)
           const finalTitleRaw = `${titleRaw} due:${timeTrigger}{${time}}`;
@@ -344,6 +350,47 @@ export function constructMenuDueDatePickerOnChange({
 
     boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
   };
+}
+
+interface DeleteDueDateParams {
+  stateManager: StateManager;
+  boardModifiers: BoardModifiers;
+  item: Item;
+  path: Path;
+}
+
+export function deleteDueDate({
+  stateManager,
+  boardModifiers,
+  item,
+  path,
+}: DeleteDueDateParams) {
+  const dateTrigger = stateManager.getSetting('date-trigger');
+  const timeTrigger = stateManager.getSetting('time-trigger');
+  const shouldLinkDates = stateManager.getSetting('link-date-to-daily-note');
+  
+  const contentMatch = shouldLinkDates
+    ? '(?:\\[[^\\]]+\\]\\([^)]+\\)|\\[\\[[^\\]]+\\]\\])'
+    : '{[^}]+}';
+  
+  // Use global flag to match all due dates and times
+  const dueDateRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(dateTrigger as string)}${contentMatch}`, 'g');
+  const dueTimeRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`, 'g');
+  // Also match due:@@{time} format
+  const dueTimeDoubleRegEx = new RegExp(`(^|\\s)due:${escapeRegExpStr(timeTrigger as string)}${escapeRegExpStr(timeTrigger as string)}{([^}]+)}`, 'g');
+
+  let titleRaw = item.data.titleRaw;
+
+  // Remove ALL existing due dates and times
+  titleRaw = titleRaw.replace(dueDateRegEx, '');
+  titleRaw = titleRaw.replace(dueTimeRegEx, '');
+  titleRaw = titleRaw.replace(dueTimeDoubleRegEx, '');
+  
+  // Clean up any extra spaces that might be left
+  titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+
+  // Update the item with the cleaned content
+  boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
 }
 
 export function getItemClassModifiers(item: Item) {

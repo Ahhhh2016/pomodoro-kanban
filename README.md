@@ -138,12 +138,13 @@ The plugin now includes comprehensive due date functionality to help you track t
 2. **Smart Menu**: The menu automatically detects if a card already has a due date and shows the appropriate option:
    - "添加截止日期" (Add Due Date) - when no due date exists
    - "更改截止日期" (Change Due Date) - when a due date already exists
+   - "删除截止日期" (Delete Due Date) - when a due date already exists
 3. **Date Picker**: Choose your desired due date from the calendar popup
 4. **Time Picker**: After selecting the date, a time picker will automatically appear to set the specific time
 5. **Visual Display**: The due date and time will appear in red, bold text on the right side of the focused time line
 6. **Edit Due Date**: Click on the displayed due date to modify both date and time
 7. **Replace Due Date**: Setting a new due date will automatically replace any existing due date and time
-8. **Remove Due Date**: Use the date picker to clear the due date
+8. **Delete Due Date**: Right-click on the timer button and select "删除截止日期" (Delete Due Date) to remove both due date and due time completely
 
 ### Markdown Format
 Due dates and times are stored in the card's markdown content using the format:
@@ -208,14 +209,9 @@ The plugin provides flexible control over how timelog entries are displayed:
 - **Independent Display Logic**: Due dates in the focused time line are now independent of the "move-dates" setting, ensuring they always display when present
 
 ### Debug Information for Due Date Issues
-- **Comprehensive Debug Logging**: Added detailed console logging throughout the due date processing pipeline to help diagnose display issues
-- **DueDate Component Debug**: Logs due date data, formatting settings, and rendering decisions
-- **Item Component Debug**: Logs focused time line rendering logic and due date display conditions
-- **Parser Debug**: Logs markdown parsing process for due date extensions and AST generation
-- **Hydration Debug**: Logs due date string parsing and moment.js conversion process
-- **List Processing Debug**: Logs due date extraction from AST nodes to item metadata
-- **Debug Usage**: Open browser developer console to view detailed debug information when due dates are not displaying correctly
-- **Debug Guide**: See `DEBUG_DUEDATE.md` for detailed instructions on how to use the debug information to troubleshoot due date display issues
+- **Debug Guide Available**: See `DEBUG_DUEDATE.md` for detailed instructions on how to troubleshoot due date display issues
+- **Debug Information Removed**: All console logging has been cleaned up for production use
+- **Debugging Support**: Debug information can be re-added if needed for future troubleshooting
 
 ### Due Date Data Flow Fix
 - **Fixed Data Mapping Issue**: Resolved issue where duedate data was not being properly mapped from AST nodes to item metadata
@@ -234,6 +230,12 @@ The plugin provides flexible control over how timelog entries are displayed:
 - **Improved Spacing**: Added right padding (8px) to due date display for better visual separation
 - **Clear Identification**: The exclamation mark and "Due:" label make due dates easily distinguishable from other metadata
 - **Consistent Styling**: Maintains red color and bold font weight for high visibility
+
+### Due Date Deletion Feature
+- **Easy Deletion**: Added "删除截止日期" (Delete Due Date) option in the timer menu when a due date exists
+- **Complete Removal**: The delete function removes both due date and due time from the card's markdown content
+- **Smart Menu Detection**: The delete option only appears when a due date is actually present on the card
+- **Clean Markdown**: Ensures proper cleanup of all due date related content without leaving extra spaces or formatting issues
 
 - [Bugs, Issues, & Feature Requests](https://github.com/mgmeyers/obsidian-kanban/issues)
 - [Development Roadmap](https://github.com/mgmeyers/obsidian-kanban/projects/1)

@@ -155,24 +155,8 @@ const ItemInner = memo(function ItemInner({
         const hasFocusedTime = totalMs > 0;
         const hasDueDate = item.data.metadata.duedate;
         
-        // Debug: Log focused time line information
-        console.log('Item.tsx - Focused time line debug:', {
-          itemId: item.id,
-          totalMs,
-          hasFocusedTime,
-          hasDueDate,
-          duedate: item.data.metadata.duedate,
-          duetime: item.data.metadata.duetime,
-          duedateStr: item.data.metadata.duedateStr,
-          duetimeStr: item.data.metadata.duetimeStr,
-          itemMetadata: item.data.metadata
-        });
-        
         // Show this section if either focused time or due date exists
-        if (!hasFocusedTime && !hasDueDate) {
-          console.log('Item.tsx - No focused time or due date, returning null');
-          return null;
-        }
+        if (!hasFocusedTime && !hasDueDate) return null;
         
         const hours = Math.floor(totalMs / 3600000);
         const minutes = Math.floor((totalMs % 3600000) / 60000);
@@ -190,18 +174,12 @@ const ItemInner = memo(function ItemInner({
               item,
               hasDueDate: true,
               path,
+              coordinates: { x: e.clientX, y: e.clientY },
             }),
             item.data.metadata.duedate?.toDate()
           );
         };
         
-        console.log('Item.tsx - Rendering focused time line:', {
-          hasFocusedTime,
-          focusedTimeStr,
-          hasDueDate,
-          willRenderDueDate: hasDueDate
-        });
-
         return (
           <div
             className={c('item-focus-time')}

@@ -1,7 +1,7 @@
 import { Menu } from 'obsidian';
 import { Item } from '../types';
 import { TimerManager } from '../../TimerManager';
-import { constructDatePicker, constructMenuDueDatePickerOnChange } from './helpers';
+import { constructDatePicker, constructMenuDueDatePickerOnChange, deleteDueDate } from './helpers';
 import { StateManager } from '../../StateManager';
 import { BoardModifiers } from '../../helpers/boardModifiers';
 import { Path } from '../../dnd/types';
@@ -90,11 +90,33 @@ export function useTimerMenu(
                 item,
                 hasDueDate,
                 path,
+                coordinates: { x: e.clientX, y: e.clientY },
               }),
               item.data.metadata.duedate?.toDate()
             );
           });
       });
+
+    // Add delete due date option if due date exists
+    const hasDueDateInMetadata = !!item.data.metadata.duedate;
+    const hasDueDateInContent = item.data.titleRaw.includes('due:@');
+    const hasDueDate = hasDueDateInMetadata || hasDueDateInContent;
+    
+    if (hasDueDate) {
+      menu.addItem((mi) =>
+        mi
+          .setIcon('lucide-trash-2')
+          .setTitle('删除截止日期')
+          .onClick(() => {
+            deleteDueDate({
+              stateManager,
+              boardModifiers,
+              item,
+              path,
+            });
+          })
+      );
+    }
 
     menu.showAtMouseEvent(e);
   };
