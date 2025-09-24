@@ -269,6 +269,16 @@ This provides a completely clean editing experience when timelog information is 
 - **Clear Identification**: The exclamation mark and "Due:" label make due dates easily distinguishable from other metadata
 - **Consistent Styling**: Maintains red color and bold font weight for high visibility
 
+### Due Date Display Fix (Latest)
+- **Fixed Data Access Issue**: Resolved issue where duedate data was not being properly accessed from AST nodes in list processing
+- **Enhanced Display Logic**: Fixed issue where due dates would not display when no focused time or estimate time was present
+- **Improved Compatibility**: Added fallback logic to access duedate data from both `node.duedate` and `node.date` properties for better compatibility
+- **Complete Display Coverage**: Due dates now display correctly in all scenarios:
+  - With focused time only
+  - With estimate time only  
+  - With both focused time and estimate time
+  - With due date only (no other timing information)
+
 ### Due Date Deletion Feature
 - **Easy Deletion**: Added "删除截止日期" (Delete Due Date) option in the timer menu when a due date exists
 - **Complete Removal**: The delete function removes both due date and due time from the card's markdown content

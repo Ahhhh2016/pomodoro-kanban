@@ -237,6 +237,16 @@ const ItemInner = memo(function ItemInner({
                 </div>
               </div>
             )}
+            {/* Show due date alone if no focused time and no estimate time */}
+            {!hasFocusedTime && !shouldShowEstimate && hasDueDate && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <DueDate 
+                  item={item} 
+                  stateManager={stateManager} 
+                  onEditDueDate={onEditDueDate}
+                />
+              </div>
+            )}
           </div>
         );
       })()}

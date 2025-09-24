@@ -174,7 +174,9 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
 
       if (genericNode.type === 'duedate' || genericNode.type === 'duedateLink') {
         // Always use the last (most recent) due date if multiple exist
-        itemData.metadata.duedateStr = (genericNode as DateNode).date;
+        // Access duedate data from the correct property
+        const duedateValue = (genericNode as any).duedate || (genericNode as DateNode).date;
+        itemData.metadata.duedateStr = duedateValue;
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
@@ -186,7 +188,9 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       }
 
       if (genericNode.type === 'duetime') {
-        itemData.metadata.duetimeStr = (genericNode as TimeNode).time;
+        // Access duetime data from the correct property
+        const duetimeValue = (genericNode as any).duetime || (genericNode as TimeNode).time;
+        itemData.metadata.duetimeStr = duetimeValue;
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,
