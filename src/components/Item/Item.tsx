@@ -149,18 +149,26 @@ const ItemInner = memo(function ItemInner({
       </div>
       <ItemMetadata searchQuery={isMatch ? searchQuery : undefined} item={item} />
 
-      {/* Focused time line with due date */}
+      {/* Focused time line with due date and estimate time */}
       {(() => {
         const totalMs = timerManager?.getTotalFocused(item.id) ?? 0;
         const hasFocusedTime = totalMs > 0;
         const hasDueDate = item.data.metadata.duedate;
+        const hasEstimateTime = item.data.metadata.estimatetime;
         
-        // Show this section if either focused time or due date exists
-        if (!hasFocusedTime && !hasDueDate) return null;
+        // Show this section if any of focused time, due date, or estimate time exists
+        if (!hasFocusedTime && !hasDueDate && !hasEstimateTime) return null;
         
         const hours = Math.floor(totalMs / 3600000);
         const minutes = Math.floor((totalMs % 3600000) / 60000);
         const focusedTimeStr = `${hours ? hours + ' h ' : ''}${minutes} min`;
+        
+        // Format estimate time like focused time
+        const estimateTimeStr = hasEstimateTime ? (() => {
+          const estimateHours = item.data.metadata.estimatetime.hours();
+          const estimateMinutes = item.data.metadata.estimatetime.minutes();
+          return `${estimateHours ? estimateHours + ' h ' : ''}${estimateMinutes} min`;
+        })() : '';
         
         // Due date edit handler
         const onEditDueDate = (e: MouseEvent) => {
@@ -194,6 +202,11 @@ const ItemInner = memo(function ItemInner({
           >
             <div>
               {hasFocusedTime && `Focused: ${focusedTimeStr}`}
+              {hasEstimateTime && (
+                <span style={{ marginLeft: hasFocusedTime ? '12px' : '0' }}>
+                  Estimate: {estimateTimeStr}
+                </span>
+              )}
             </div>
             <div>
               {hasDueDate && (

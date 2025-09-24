@@ -1,7 +1,7 @@
 import { Menu } from 'obsidian';
 import { Item } from '../types';
 import { TimerManager } from '../../TimerManager';
-import { constructDatePicker, constructMenuDueDatePickerOnChange, deleteDueDate } from './helpers';
+import { constructDatePicker, constructMenuDueDatePickerOnChange, deleteDueDate, constructEstimateTimeInput, deleteEstimateTime } from './helpers';
 import { StateManager } from '../../StateManager';
 import { BoardModifiers } from '../../helpers/boardModifiers';
 import { Path } from '../../dnd/types';
@@ -15,6 +15,13 @@ export function useTimerMenu(
 ) {
   return (e: MouseEvent) => {
     const menu = new Menu();
+
+    // Helper function to check if estimate time exists
+    const hasEstimateTime = () => {
+      const hasEstimateTimeInMetadata = !!item.data.metadata.estimatetime;
+      const hasEstimateTimeInContent = item.data.titleRaw.includes('estimate:@{');
+      return hasEstimateTimeInMetadata || hasEstimateTimeInContent;
+    };
 
     const isRunning = timerManager.state.running;
     const isThisTarget = timerManager.state.targetCardId === item.id;
@@ -73,6 +80,41 @@ export function useTimerMenu(
         );
       }
 
+      // Add estimate time options
+      menu.addItem((mi) => {
+        const hasEstimate = hasEstimateTime();
+        mi
+          .setIcon('lucide-clock')
+          .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+          .onClick(() => {
+            constructEstimateTimeInput({
+              stateManager,
+              boardModifiers,
+              item,
+              hasEstimateTime: hasEstimate,
+              path,
+              coordinates: { x: e.clientX, y: e.clientY },
+            })(e.view);
+          });
+      });
+
+      // Add delete estimate time option if estimate time exists
+      if (hasEstimateTime()) {
+        menu.addItem((mi) =>
+          mi
+            .setIcon('lucide-trash-2')
+            .setTitle('删除预估时间')
+            .onClick(() => {
+              deleteEstimateTime({
+                stateManager,
+                boardModifiers,
+                item,
+                path,
+              });
+            })
+        );
+      }
+
       menu.showAtMouseEvent(e);
       return;
     }
@@ -122,6 +164,41 @@ export function useTimerMenu(
             .setTitle('删除截止日期')
             .onClick(() => {
               deleteDueDate({
+                stateManager,
+                boardModifiers,
+                item,
+                path,
+              });
+            })
+        );
+      }
+
+      // Add estimate time options
+      menu.addItem((mi) => {
+        const hasEstimate = hasEstimateTime();
+        mi
+          .setIcon('lucide-clock')
+          .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+          .onClick(() => {
+            constructEstimateTimeInput({
+              stateManager,
+              boardModifiers,
+              item,
+              hasEstimateTime: hasEstimate,
+              path,
+              coordinates: { x: e.clientX, y: e.clientY },
+            })(e.view);
+          });
+      });
+
+      // Add delete estimate time option if estimate time exists
+      if (hasEstimateTime()) {
+        menu.addItem((mi) =>
+          mi
+            .setIcon('lucide-trash-2')
+            .setTitle('删除预估时间')
+            .onClick(() => {
+              deleteEstimateTime({
                 stateManager,
                 boardModifiers,
                 item,
@@ -202,6 +279,41 @@ export function useTimerMenu(
       );
     }
 
+    // Add estimate time options
+    menu.addItem((mi) => {
+      const hasEstimate = hasEstimateTime();
+      mi
+        .setIcon('lucide-clock')
+        .setTitle(hasEstimate ? '修改预估时间' : '添加预估时间')
+        .onClick(() => {
+          constructEstimateTimeInput({
+            stateManager,
+            boardModifiers,
+            item,
+            hasEstimateTime: hasEstimate,
+            path,
+            coordinates: { x: e.clientX, y: e.clientY },
+          })(e.view);
+        });
+    });
+
+    // Add delete estimate time option if estimate time exists
+    if (hasEstimateTime()) {
+      menu.addItem((mi) =>
+        mi
+          .setIcon('lucide-trash-2')
+          .setTitle('删除预估时间')
+          .onClick(() => {
+            deleteEstimateTime({
+              stateManager,
+              boardModifiers,
+              item,
+              path,
+            });
+          })
+      );
+    }
+
     menu.showAtMouseEvent(e);
   };
-} 
+}

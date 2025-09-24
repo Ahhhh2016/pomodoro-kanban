@@ -737,3 +737,185 @@ export async function handleDragOrPaste(
     }
   }
 }
+
+// Estimate Time Functions
+interface ConstructEstimateTimeInputParams {
+  stateManager: StateManager;
+  boardModifiers: BoardModifiers;
+  item: Item;
+  hasEstimateTime: boolean;
+  path: Path;
+  coordinates?: { x: number; y: number };
+}
+
+export function constructEstimateTimeInput({
+  stateManager,
+  boardModifiers,
+  item,
+  hasEstimateTime,
+  path,
+  coordinates,
+}: ConstructEstimateTimeInputParams) {
+  return (win: Window) => {
+    const modal = win.document.body.createDiv(
+      { cls: `${c('estimate-time-modal')} ${c('ignore-click-outside')}` },
+      (div) => {
+        div.style.left = `${coordinates?.x || 0}px`;
+        div.style.top = `${coordinates?.y || 0}px`;
+        div.style.position = 'fixed';
+        div.style.zIndex = '1000';
+        div.style.backgroundColor = 'var(--background-primary)';
+        div.style.border = '1px solid var(--background-modifier-border)';
+        div.style.borderRadius = '6px';
+        div.style.padding = '16px';
+        div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        div.style.minWidth = '200px';
+
+        // Title
+        div.createEl('h3', { 
+          text: hasEstimateTime ? '修改预估时间' : '添加预估时间',
+          cls: 'modal-title'
+        });
+
+        // Hours input
+        const hoursContainer = div.createDiv({ cls: 'input-container' });
+        hoursContainer.createEl('label', { text: '小时:', cls: 'input-label' });
+        const hoursInput = hoursContainer.createEl('input', {
+          type: 'number',
+          value: hasEstimateTime && item.data.metadata.estimatetime 
+            ? item.data.metadata.estimatetime.format('H') 
+            : '0',
+          cls: 'input-field'
+        });
+        hoursInput.setAttribute('min', '0');
+        hoursInput.setAttribute('max', '23');
+
+        // Minutes input
+        const minutesContainer = div.createDiv({ cls: 'input-container' });
+        minutesContainer.createEl('label', { text: '分钟:', cls: 'input-label' });
+        const minutesInput = minutesContainer.createEl('input', {
+          type: 'number',
+          value: hasEstimateTime && item.data.metadata.estimatetime 
+            ? item.data.metadata.estimatetime.format('m') 
+            : '0',
+          cls: 'input-field'
+        });
+        minutesInput.setAttribute('min', '0');
+        minutesInput.setAttribute('max', '59');
+
+        // Buttons container
+        const buttonsContainer = div.createDiv({ cls: 'buttons-container' });
+        
+        const saveButton = buttonsContainer.createEl('button', {
+          text: '保存',
+          cls: 'mod-cta'
+        });
+
+        const cancelButton = buttonsContainer.createEl('button', {
+          text: '取消',
+          cls: 'mod-secondary'
+        });
+
+        if (hasEstimateTime) {
+          const deleteButton = buttonsContainer.createEl('button', {
+            text: '删除',
+            cls: 'mod-warning'
+          });
+
+          deleteButton.onclick = () => {
+            deleteEstimateTime({ stateManager, boardModifiers, item, path });
+            modal.remove();
+          };
+        }
+
+        // Event handlers
+        const saveEstimateTime = () => {
+          const hours = parseInt(hoursInput.value) || 0;
+          const minutes = parseInt(minutesInput.value) || 0;
+          
+          if (hours === 0 && minutes === 0) {
+            // If both are 0, treat as delete
+            deleteEstimateTime({ stateManager, boardModifiers, item, path });
+          } else {
+            // Create estimate time string in HH:mm format
+            const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            const estimateTimeStr = `estimate:@{${timeString}}`;
+            
+            let titleRaw = item.data.titleRaw;
+            
+            if (hasEstimateTime) {
+              // Remove existing estimate time
+              const estimateTimeRegEx = /(^|\s)estimate:@{[^}]+}/g;
+              titleRaw = titleRaw.replace(estimateTimeRegEx, '');
+              titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+            }
+            
+            // Add new estimate time
+            titleRaw = `${titleRaw}\n${estimateTimeStr}`;
+            
+            boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+          }
+          
+          modal.remove();
+        };
+
+        saveButton.onclick = saveEstimateTime;
+        cancelButton.onclick = () => modal.remove();
+
+        // Handle Enter key
+        const handleKeydown = (e: KeyboardEvent) => {
+          if (e.key === 'Enter') {
+            saveEstimateTime();
+          } else if (e.key === 'Escape') {
+            modal.remove();
+          }
+        };
+
+        hoursInput.addEventListener('keydown', handleKeydown);
+        minutesInput.addEventListener('keydown', handleKeydown);
+
+        // Focus on hours input
+        setTimeout(() => hoursInput.focus(), 0);
+      }
+    );
+
+    // Close modal when clicking outside
+    const clickHandler = (e: MouseEvent) => {
+      if (e.target instanceof HTMLElement && !modal.contains(e.target)) {
+        modal.remove();
+        win.document.body.removeEventListener('click', clickHandler);
+      }
+    };
+
+    setTimeout(() => {
+      win.document.body.addEventListener('click', clickHandler);
+    }, 0);
+  };
+}
+
+interface DeleteEstimateTimeParams {
+  stateManager: StateManager;
+  boardModifiers: BoardModifiers;
+  item: Item;
+  path: Path;
+}
+
+export function deleteEstimateTime({
+  stateManager,
+  boardModifiers,
+  item,
+  path,
+}: DeleteEstimateTimeParams) {
+  const estimateTimeRegEx = /(^|\s)estimate:@{[^}]+}/g;
+  
+  let titleRaw = item.data.titleRaw;
+  
+  // Remove existing estimate time
+  titleRaw = titleRaw.replace(estimateTimeRegEx, '');
+  
+  // Clean up any extra spaces that might be left
+  titleRaw = titleRaw.replace(/\s+/g, ' ').trim();
+
+  // Update the item with the cleaned content
+  boardModifiers.updateItem(path, stateManager.updateItemContent(item, titleRaw));
+}

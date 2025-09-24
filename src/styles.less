@@ -1858,6 +1858,33 @@ body:not(.native-scrollbars) .kanban-plugin__scroll-container::-webkit-scrollbar
   }
 }
 
+// Estimate time styles
+.kanban-plugin__item-estimate-time {
+  padding-block-start: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kanban-plugin__estimate-time-label {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.kanban-plugin__estimate-time-value {
+  font-weight: 600;
+  color: var(--text-accent);
+  font-size: 0.9em;
+}
+
+.kanban-plugin__item-divider {
+  height: 1px;
+  background-color: var(--background-modifier-border);
+  margin: 4px 0;
+  opacity: 0.5;
+}
+
 // Timelog styles
 .kanban-plugin__item-timelogs {
   padding-block-start: 4px;

@@ -320,6 +320,7 @@ export const ItemContent = memo(function ItemContent({
           <InlineMetadata item={item} stateManager={stateManager} />
           <Tags tags={item.data.metadata.tags} searchQuery={searchQuery} />
 
+
           {item.data.metadata.timelogs?.length > 0 && !hideTimelog && (
             <div className={c('item-timelogs')}>
               {item.data.metadata.timelogs.map((log, i) => {

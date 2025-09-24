@@ -167,6 +167,15 @@ export function preprocessTitle(stateManager: StateManager, title: string) {
     );
   }
 
+  // Handle estimate time - remove from markdown content display (shown separately)
+  title = title.replace(
+    new RegExp(`(^|\\s)estimate:@{([^}]+)}`, 'g'),
+    (match, space, content) => {
+      // Remove estimate time from markdown content display - it's shown separately
+      return space;
+    }
+  );
+
   return title;
 }
 
@@ -211,6 +220,12 @@ export function filterTimelogFromMarkdown(stateManager: StateManager, markdown: 
     (match, space) => space
   );
 
+  // Remove estimate time markers
+  filteredMarkdown = filteredMarkdown.replace(
+    new RegExp(`(^|\\s)estimate:@{([^}]+)}`, 'gm'),
+    (match, space) => space
+  );
+
   // Clean up multiple consecutive newlines that might be left after filtering
   filteredMarkdown = filteredMarkdown.replace(/\n\s*\n\s*\n/g, '\n\n');
 
@@ -218,7 +233,7 @@ export function filterTimelogFromMarkdown(stateManager: StateManager, markdown: 
 }
 
 export function hydrateItem(stateManager: StateManager, item: Item) {
-  const { dateStr, timeStr, duedateStr, duetimeStr, fileAccessor } = item.data.metadata;
+  const { dateStr, timeStr, duedateStr, duetimeStr, estimatetimeStr, fileAccessor } = item.data.metadata;
 
   if (dateStr) {
     item.data.metadata.date = moment(dateStr, stateManager.getSetting('date-format'));
@@ -254,6 +269,11 @@ export function hydrateItem(stateManager: StateManager, item: Item) {
     }
 
     item.data.metadata.duetime = duetime;
+  }
+
+  if (estimatetimeStr) {
+    // Parse estimate time as HH:mm format
+    item.data.metadata.estimatetime = moment(estimatetimeStr, 'HH:mm');
   }
 
   if (fileAccessor) {

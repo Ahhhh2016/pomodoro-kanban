@@ -22,6 +22,7 @@ Create markdown-backed Kanban boards in [Obsidian](https://obsidian.md/) with in
 - **Customizable Settings**: Configure timer durations, interrupt reasons, and sound preferences
 - **Timelog Display Control**: Option to hide timelog entries in card view while keeping them visible in markdown view
 - **Due Date Management**: Set due dates for tasks with visual indicators (red, bold text) displayed on the right side of the focused time line
+- **Estimate Time**: Set estimated time for tasks with easy-to-use hour and minute input dialog
 
 ## Auto Pomodoro Rounds Feature
 
@@ -120,6 +121,34 @@ The current break time logic follows a simple but effective pattern:
 - **Session Logging**: All sessions longer than 1 minute are automatically logged to the card's markdown
 - **Interrupt Reasons**: For longer sessions, you can specify why you stopped (interruption, task complete, etc.)
 - **Card Switching**: Switch between cards while maintaining timer state
+
+## Estimate Time Management
+
+The plugin now includes estimate time functionality to help you plan and track task duration expectations:
+
+### Features
+- **Easy Estimate Time Setting**: Access estimate time input through the timer menu (right-click on timer button)
+- **Hour and Minute Input**: Simple dialog with separate fields for hours (0-23) and minutes (0-59)
+- **Visual Display**: Estimate time is displayed in the card's metadata area with a clear "预估时间:" label
+- **Edit and Delete**: Modify existing estimate times or delete them completely
+- **Markdown Integration**: Estimate times are stored as `estimate:@{HH:mm}` format in the card markdown
+- **Clean Display**: Estimate time is hidden from markdown content display and shown separately for better organization
+
+### How to Use
+1. **Set Estimate Time**: Right-click on the timer button of any card and select "添加预估时间" (Add Estimate Time) or "修改预估时间" (Modify Estimate Time) if one already exists
+2. **Input Dialog**: Enter hours and minutes in the popup dialog
+3. **Visual Display**: The estimate time will appear in the card's metadata area with format "预估时间: HH:mm"
+4. **Edit Estimate Time**: Right-click on the timer button and select "修改预估时间" to change the estimate
+5. **Delete Estimate Time**: Right-click on the timer button and select "删除预估时间" to remove it completely
+6. **Smart Menu**: The menu automatically detects if a card already has an estimate time and shows the appropriate options
+
+### Markdown Format
+Estimate times are stored in the card's markdown content using the format:
+- `estimate:@{02:30}` for 2 hours and 30 minutes
+- `estimate:@{00:45}` for 45 minutes
+- `estimate:@{08:00}` for 8 hours
+
+**Note**: While estimate times are stored in the markdown content for data persistence, they are displayed separately in the card's metadata area for better visual organization and are hidden from the card's content area.
 
 ## Due Date Management
 

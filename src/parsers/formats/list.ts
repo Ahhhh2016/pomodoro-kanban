@@ -100,6 +100,12 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
       date: undefined,
       time: undefined,
       timeStr: undefined,
+      duedateStr: undefined,
+      duedate: undefined,
+      duetimeStr: undefined,
+      duetime: undefined,
+      estimatetimeStr: undefined,
+      estimatetime: undefined,
       tags: [],
       fileAccessor: undefined,
       file: undefined,
@@ -181,6 +187,17 @@ export function listItemToItemData(stateManager: StateManager, md: string, item:
 
       if (genericNode.type === 'duetime') {
         itemData.metadata.duetimeStr = (genericNode as TimeNode).time;
+        if (moveDates) {
+          title = markRangeForDeletion(title, {
+            start: node.position.start.offset - itemBoundary.start,
+            end: node.position.end.offset - itemBoundary.start,
+          });
+        }
+        return true;
+      }
+
+      if (genericNode.type === 'estimatetime') {
+        itemData.metadata.estimatetimeStr = (genericNode as TimeNode).time;
         if (moveDates) {
           title = markRangeForDeletion(title, {
             start: node.position.start.offset - itemBoundary.start,

@@ -73,6 +73,8 @@ export interface ItemMetadata {
   duedate?: moment.Moment;
   duetimeStr?: string;
   duetime?: moment.Moment;
+  estimatetimeStr?: string;
+  estimatetime?: moment.Moment;
   tags?: string[];
   fileAccessor?: FileAccessor;
   file?: TFile | null;

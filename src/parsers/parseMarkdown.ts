@@ -73,6 +73,8 @@ function getExtensions(stateManager: StateManager) {
     genericWrappedExtension('duetime', `due:${stateManager.getSetting('time-trigger')}{`, '}'),
     // Support for due:@@{time} format
     genericWrappedExtension('duetime', `due:${stateManager.getSetting('time-trigger')}${stateManager.getSetting('time-trigger')}{`, '}'),
+    // Support for estimate time
+    genericWrappedExtension('estimatetime', `estimate:@{`, '}'),
     genericWrappedExtension('embedWikilink', '![[', ']]'),
     genericWrappedExtension('wikilink', '[[', ']]'),
     tagExtension(),
@@ -118,6 +120,13 @@ function getMdastExtensions(stateManager: StateManager) {
       if (!text) return;
       // Store in both duetime and time properties for compatibility
       node.duetime = text;
+      node.time = text;
+    }),
+    // Support for estimate time
+    genericWrappedFromMarkdown('estimatetime', (text, node) => {
+      if (!text) return;
+      // Store in both estimatetime and time properties for compatibility
+      node.estimatetime = text;
       node.time = text;
     }),
     genericWrappedFromMarkdown('embedWikilink', (text, node) => {
