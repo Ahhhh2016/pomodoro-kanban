@@ -231,6 +231,7 @@ const lang: Partial<Lang> = {
   // TimerPanelModal.tsx
   'Break': '休息',
   'Stopwatch': '秒表',
+  'Pomodoro': '番茄钟',
   'Stop': '停止',
   'Skip': '跳过',
   'Current card': '当前卡片',

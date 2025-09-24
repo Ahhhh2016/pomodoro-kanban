@@ -231,6 +231,11 @@ The focus time calculation has been updated to work with the new text format whi
 
 ## Recent Improvements
 
+### Custom Icon Implementation
+- **Unique Sidebar Icon**: Changed the sidebar icon from `lucide-trello` to a custom tomato icon to avoid conflicts with the original Kanban plugin
+- **Icon Registration**: Added custom icon registration using Obsidian's `addIcon` API to register the tomato.svg icon
+- **Conflict Resolution**: This change ensures that both pomodoro-kanban and obsidian-kanban plugins can be installed simultaneously without icon conflicts
+
 ### Due Date Duplication Fix
 - **Prevented Duplicate Due Dates**: Fixed an issue where users could accidentally add multiple due dates to the same card
 - **Smart Replacement Logic**: When setting a new due date, all existing due dates are automatically removed to prevent duplicates

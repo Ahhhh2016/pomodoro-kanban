@@ -29,7 +29,7 @@ import { h, Fragment } from 'preact';
 import { TimerPanelModal } from './components/TimerPanelModal';
 
 export const kanbanViewType = 'kanban';
-export const kanbanIcon = 'lucide-trello';
+export const kanbanIcon = 'tomato';
 
 export class KanbanView extends TextFileView implements HoverParent {
   plugin: KanbanPlugin;

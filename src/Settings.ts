@@ -121,8 +121,6 @@ export interface KanbanSettings {
   'timer-interrupts'?: string[];
   /** Enable notification sounds */
   'timer-enable-sounds'?: boolean;
-  /** Audio file path (in vault) for end-of-session sound */
-  'timer-sound-file'?: string;
   /** Volume percentage (0-100) for sounds */
   'timer-sound-volume'?: number;
 }
@@ -182,7 +180,6 @@ export const settingKeyLookup: Set<keyof KanbanSettings> = new Set([
   'timer-auto-rounds',
   'timer-interrupts',
   'timer-enable-sounds',
-  'timer-sound-file',
   'timer-sound-volume',
 ]);
 
@@ -1754,38 +1751,6 @@ export class SettingsManager {
         });
     });
 
-    new Setting(contentEl)
-      .setName('Sound file path')
-      .setDesc('Relative path in vault to play when a session ends. If empty, a built-in sound is used.')
-      .then((setting) => {
-        let inputComponent: TextComponent;
-
-        setting
-          .addText((text) => {
-            inputComponent = text;
-
-            const [value, globalValue] = this.getSetting('timer-sound-file', local);
-            text.setValue((value as string) || (globalValue as string) || '');
-
-            text.onChange((val) => {
-              this.applySettingsUpdate({
-                'timer-sound-file': { $set: val },
-              });
-            });
-          })
-          .addExtraButton((b) => {
-            b.setIcon('lucide-rotate-ccw')
-              .setTooltip('Reset to default')
-              .onClick(() => {
-                const [, globalValue] = this.getSetting('timer-sound-file', local);
-                inputComponent.setValue((globalValue as string) || '');
-
-                this.applySettingsUpdate({
-                  $unset: ['timer-sound-file'],
-                });
-              });
-          });
-      });
 
     new Setting(contentEl)
       .setName('Sound volume')

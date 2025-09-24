@@ -318,6 +318,7 @@ const en = {
   // TimerPanelModal.tsx
   'Break': 'Break',
   'Stopwatch': 'Stopwatch',
+  'Pomodoro': 'Pomodoro',
   'Stop': 'Stop',
   'Skip': 'Skip',
   'Current card': 'Current card',
