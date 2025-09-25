@@ -121,21 +121,18 @@ Configure the plugin through Obsidian Settings > Community Plugins > Pomodoro Ka
 
 ## Support
 
-- [GitHub Issues](https://github.com/mgmeyers/obsidian-kanban/issues) - Report bugs and request features
-- [Documentation](https://publish.obsidian.md/kanban/) - Complete plugin documentation
+- [GitHub Issues](https://github.com/Ahhhh2016/pomodoro-kanban/issues) - Report bugs and request features
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## Acknowledgments
+
+This plugin is based on the excellent [Obsidian Kanban Plugin](https://github.com/mgmeyers/obsidian-kanban) by [mgmeyers](https://github.com/mgmeyers). The original plugin provided the foundation for the Kanban board functionality, and this fork extends it with Pomodoro timer features.
+
+I am grateful to the original author and contributors for their work on the base Kanban functionality.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
----
-
-If you find this plugin useful, consider supporting its development:
-
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/mgmeyers?label=Sponsor&logo=GitHub%20Sponsors&style=for-the-badge)](https://github.com/sponsors/mgmeyers)
-
-<a href="https://www.buymeacoffee.com/mgme"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=mgme&button_colour=5F7FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"></a>
