@@ -1,9 +1,9 @@
 {
 	"id": "pomodoro-kanban",
 	"name": "Pomodoro Kanban",
-	"version": "1.0.0",
-	"minAppVersion": "1.0.0",
-	"description": "Pomodoro enhanced Kanban plugin for Obsidian",
+	"version": "1.0.1",
+	"minAppVersion": "1.0.1",
+	"description": "Pomodoro enhanced Kanban plugin with integrated Pomodoro timers, automatic breaks/rounds, and per‑card time logging.",
 	"author": "ahhhh2016",
 	"authorUrl": "https://github.com/Ahhhh2016",
 	"helpUrl": "",
