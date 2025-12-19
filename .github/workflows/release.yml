@@ -3,7 +3,10 @@ name: Release Obsidian plugin
 on:
   push:
     tags:
-      - '*'
+      - 'pomo-*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
