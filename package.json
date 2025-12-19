@@ -1,6 +1,6 @@
 {
   "name": "pomodoro-kanban",
-  "version": "1.0.3",
+  "version": "1.0.1",
   "description": "Pomodoro enhanced Kanban plugin with integrated Pomodoro timers, automatic breaks/rounds, and per‑card time logging.",
   "main": "main.js",
   "scripts": {
